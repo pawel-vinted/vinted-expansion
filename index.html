@@ -14,8 +14,9 @@
   #app{position:relative;max-width:440px;margin:0 auto;height:100dvh;overflow:hidden;background:#cfe0f5;display:flex;flex-direction:column;}
 
   /* backgrounds */
-  .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-  #bgNight{opacity:0;transition:opacity 1.2s linear;}
+  .bg{position:absolute;inset:0;background-repeat:repeat-x;background-size:auto 100%;background-position:0 center;}
+  #bgDay{background-image:url('assets/bg/day.png');}
+  #bgNight{background-image:url('assets/bg/night.png');opacity:0;}
 
   /* top HUD */
   #hud{position:absolute;top:0;left:0;right:0;z-index:10;padding:10px 12px 0;}
@@ -25,14 +26,25 @@
   .pill .ic{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex:none;}
   .ic.emp{background:var(--purple);} .ic.mood{background:var(--pink);} .ic.cash{background:var(--cash);} .ic.star{background:var(--yellow);}
   .pill small{font-size:10px;color:var(--muted);font-weight:700;margin-left:-3px;}
+  #lvlbox{position:relative;height:35px;min-width:134px;border-radius:22px;background:#e6eaf0;overflow:hidden;box-shadow:0 5px 14px rgba(35,45,75,.16);}
+  #lvlfill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#f7c333,#e6a700);transition:width .3s;}
+  #lvlbox .lvltop{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:flex-end;padding:0 14px;font-weight:800;font-size:14px;color:var(--ink);}
+  #lvlnext{font-size:10.5px;font-weight:800;color:#3a4659;text-align:right;margin:4px 6px 0 0;text-shadow:0 1px 2px rgba(255,255,255,.7);}
+  #upgradeBtn{display:none;align-self:flex-end;margin-top:8px;position:relative;background:#007782;color:#fff;border:none;font-weight:800;font-size:15px;padding:11px 24px;border-radius:16px;box-shadow:0 7px 18px rgba(0,119,130,.4);cursor:pointer;animation:upbob 1.4s ease-in-out infinite;}
+  #upgradeBtn.show{display:block;}
+  #upgradeBtn::before{content:"";position:absolute;top:-6px;right:28px;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:7px solid #007782;}
+  #upgradeBtn:active{transform:scale(.95);}
+  @keyframes upbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 
   /* stage / building */
   #stage{position:relative;flex:1;min-height:200px;z-index:2;overflow:hidden;}
   .bldg{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:78%;max-width:330px;filter:drop-shadow(0 14px 20px rgba(0,0,0,.22));}
   #buildingNext{opacity:0;pointer-events:none;}
   .person{position:absolute;height:46px;z-index:3;transform-origin:bottom center;transition:left 3.6s linear,bottom 3.6s linear,transform 3.6s linear,opacity .5s;pointer-events:none;}
+  #thomasFx{position:absolute;left:50%;bottom:20%;width:56%;max-width:250px;z-index:8;pointer-events:none;opacity:0;transition:opacity .6s ease;filter:drop-shadow(0 12px 20px rgba(0,0,0,.35));animation:tfloat 2.6s ease-in-out infinite;}
+  @keyframes tfloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-12px)}}
 
-  .toast{position:absolute;top:96px;left:50%;transform:translateX(-50%) translateY(-6px);background:rgba(31,41,55,.94);color:#fff;font-weight:700;font-size:13px;padding:8px 15px;border-radius:22px;z-index:30;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap;max-width:90%;}
+  .toast{position:absolute;top:92px;left:50%;transform:translateX(-50%) translateY(-6px);background:rgba(31,41,55,.94);color:#fff;font-weight:700;font-size:13px;line-height:1.35;text-align:center;padding:9px 16px;border-radius:16px;z-index:30;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:normal;max-width:82%;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .floatup{position:absolute;font-weight:800;color:#2b8a3e;font-size:14px;z-index:20;pointer-events:none;animation:fl 1.1s ease-out forwards;text-shadow:0 1px 2px rgba(255,255,255,.7);}
   @keyframes fl{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-40px)}}
@@ -63,11 +75,15 @@
   .row .nm span{font-size:11px;color:var(--muted);}
   .row .price{font-weight:800;font-size:14px;color:var(--ink);white-space:nowrap;}
   .row .price.no{color:#c9912a;}
-  .plus{width:36px;height:36px;flex:none;border-radius:11px;background:var(--purple);color:#fff;font-size:22px;font-weight:700;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 8px rgba(124,58,237,.3);}
+  .plus{width:36px;height:36px;flex:none;border-radius:11px;background:#007782;color:#fff;font-size:22px;font-weight:700;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 8px rgba(0,119,130,.35);}
   .plus:active{transform:scale(.92);}
-  .plus:disabled{background:#cfd6e0;box-shadow:none;cursor:default;}
-  .plus.biz{background:var(--teal);box-shadow:0 3px 8px rgba(9,177,186,.3);width:auto;padding:0 16px;font-size:14px;font-weight:800;}
+  .plus:disabled,.plus.off{background:#cfd6e0;box-shadow:none;}
+  .plus.biz{background:#007782;box-shadow:0 3px 8px rgba(0,119,130,.35);width:auto;padding:0 16px;font-size:14px;font-weight:800;}
+  .plus.biz:disabled{background:#cfd6e0;box-shadow:none;}
   .note{font-size:11.5px;color:var(--muted);text-align:center;padding:2px 22px 12px;line-height:1.45;}
+  .prog{height:7px;border-radius:5px;background:#eef1f6;overflow:hidden;margin:7px 0 3px;}
+  .prog>div{height:100%;background:linear-gradient(90deg,var(--teal),var(--green));border-radius:5px;transition:width .3s;}
+  .progtxt{font-size:11px;color:var(--muted);font-weight:700;}
 
   #ctrls{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:11;display:flex;gap:6px;}
   #ctrls button{background:rgba(255,255,255,.7);border:none;border-radius:13px;height:24px;padding:0 8px;font-size:11px;font-weight:700;color:#6b7280;cursor:pointer;}
@@ -85,14 +101,30 @@
   .card button.go{margin-top:22px;background:var(--purple);color:#fff;border:none;font-weight:800;font-size:15px;padding:13px 26px;border-radius:26px;cursor:pointer;width:100%;}
   .confetti{position:absolute;width:9px;height:13px;top:-20px;z-index:55;animation:fall linear forwards;}
   @keyframes fall{to{transform:translateY(110vh) rotate(560deg);opacity:.7}}
+  .billfall{position:absolute;top:-46px;z-index:55;pointer-events:none;animation:fall linear forwards;}
+  .introbill{position:absolute;top:-56px;z-index:1;pointer-events:none;opacity:.92;animation:billrain linear forwards;}
+  @keyframes billrain{from{transform:translateY(0) rotate(-10deg)}to{transform:translateY(112vh) rotate(210deg)}}
+
+  /* intro / title screen */
+  #intro{position:absolute;inset:0;z-index:100;overflow:hidden;background:#bcd4e6;}
+  #intro.hide{display:none;}
+  #introBg{position:absolute;inset:0;background:url('assets/intro/bg.png') left center/cover no-repeat;animation:introPan 40s ease-in-out infinite alternate;}
+  @keyframes introPan{from{background-position:left center}to{background-position:right center}}
+  #introInner{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;padding:34px 24px calc(30px + env(safe-area-inset-bottom));}
+  #introLogo{width:74%;max-width:320px;margin-top:20px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.28));}
+  #introTag{text-align:center;font-size:19px;font-weight:800;color:#17262e;margin:16px 6px 0;line-height:1.3;text-shadow:0 1px 3px rgba(255,255,255,.55);}
+  #introBtns{margin-top:auto;width:100%;display:flex;flex-direction:column;gap:12px;}
+  #btnStart{background:#007782;color:#fff;border:none;font-weight:800;font-size:18px;padding:16px;border-radius:16px;box-shadow:0 8px 22px rgba(0,60,66,.45);cursor:pointer;}
+  #btnDemo{background:#cdeef0;color:#00707a;border:none;font-weight:800;font-size:18px;padding:16px;border-radius:16px;box-shadow:0 6px 16px rgba(0,60,66,.2);cursor:pointer;}
+  #btnStart:active,#btnDemo:active{transform:scale(.98);}
 </style>
 </head>
 <body>
 <div id="app">
-  <img id="bgDay" class="bg" src="assets/bg/day.png" alt="">
-  <img id="bgNight" class="bg" src="assets/bg/night.png" alt="">
+  <div id="bgDay" class="bg"></div>
+  <div id="bgNight" class="bg"></div>
 
-  <div id="ctrls"><button id="sound">🔊</button><button id="reset">reset</button></div>
+  <div id="ctrls"><button id="reset">reset</button></div>
 
   <div id="hud">
     <div class="pills">
@@ -102,7 +134,12 @@
       </div>
       <div class="col" style="align-items:flex-end">
         <div class="pill"><span class="ic cash">€</span><span id="cash">0</span></div>
-        <div class="pill"><span class="ic star">★</span><span id="lvl">1</span></div>
+        <div id="lvlbox">
+          <div id="lvlfill"></div>
+          <div class="lvltop"><b id="lvltext">Level 1</b></div>
+        </div>
+        <div id="lvlnext">Next: €1K</div>
+        <button id="upgradeBtn">Upgrade</button>
       </div>
     </div>
   </div>
@@ -129,6 +166,18 @@
     <button class="go" id="mGo">Continue playing</button>
   </div></div>
 
+  <div id="intro">
+    <div id="introBg"></div>
+    <div id="introInner">
+      <img id="introLogo" src="assets/intro/logo.png" alt="Vinted Progression">
+      <p id="introTag">Build a Vinted empire and help a company reach a Trillion mark!</p>
+      <div id="introBtns">
+        <button id="btnStart">Start playing</button>
+        <button id="btnDemo">Quick demo</button>
+      </div>
+    </div>
+  </div>
+
   <!-- sounds -->
   <audio id="aBuy" src="assets/sfx/buy.wav" preload="auto"></audio>
   <audio id="aMoney" src="assets/sfx/money.wav" preload="auto"></audio>
@@ -137,29 +186,35 @@
   <audio id="aStage" src="assets/sfx/stage.wav" preload="auto"></audio>
   <audio id="aLevel" src="assets/sfx/level.wav" preload="auto"></audio>
   <audio id="aMusic" src="assets/sfx/music.ogg" preload="auto" loop></audio>
+  <audio id="aJonasVP" src="assets/sfx/jonas_vp.mp3" preload="auto"></audio>
+  <audio id="aThomasStage" src="assets/sfx/thomas_stage.mp3" preload="auto"></audio>
 </div>
 
 <script>
 "use strict";
 //============ DATA ============
 const STAGE_NAMES=["MVP","Pro App – Marketplace","Scaling EU","Vinted Go","New Verticals","Vinted Pay","Vinted Cars","IPO","Vinted Forest","Vinted Satellites","Vinted Space"];
-const UNLOCK_VAL=[0,0,1e3,1e4,1e5,1e6,1e7,1e8,1e9,1e10,1e11,1e12];
-const CASH_COST =[0,0,150,1500,15000,150000,1.5e6,1.5e7,1.5e8,1.5e9,1.5e10,1.5e11];
+const LEVEL_COST=[0,0,1e3,1e4,1e5,1e6,1e7,1e8,1e9,1e10,1e11,1e12]; // valuation spent to reach each level
 const WIN_VAL=10000000000001;
+const HEALTHY=70;         // mood must stay above this to grow; below = valuation declines
+const QUIT_MOOD=45;       // below this staff also start quitting
+const GROWTH_SCALE=1.4;   // growth at 100% mood = GROWTH_SCALE x gross rate
 
 const STAFF=[
-  {id:"dr",  nm:"Design + Research",emoji:"🎨",base:6,  growth:1.07,rate:3, unlock:1},
-  {id:"eng", nm:"Engineering",      emoji:"💻",base:15, growth:1.07,rate:8, unlock:1},
-  {id:"data",nm:"Data",            emoji:"📊",base:45, growth:1.08,rate:22,unlock:2},
-  {id:"prod",nm:"Product",         emoji:"📦",base:120,growth:1.08,rate:60,unlock:3},
+  {id:"dr",  nm:"Design + Research",emoji:"🎨",base:260,growth:1.09,rate:120,unlock:1}, // premium: priciest, highest turnover
+  {id:"eng", nm:"Engineering",      emoji:"💻",base:10, growth:1.07,rate:5,  unlock:1}, // cheap starter
+  {id:"data",nm:"Data",            emoji:"📊",base:45, growth:1.08,rate:22, unlock:2},
+  {id:"prod",nm:"Product",         emoji:"📦",base:120,growth:1.08,rate:55, unlock:3},
 ];
+// Product staffing rule: each Product needs >=3 Engineering, 1 Data, 1 Design+Research
+function prodReqOK(){const p=oc("prod")+1;return oc("eng")>=3*p && oc("data")>=p && oc("dr")>=p;}
 const STAFF_ONEOFF=[
-  {id:"jonas", nm:"Jonas — VP of Design",emoji:"🧑‍🎨",cost:20000,unlock:3,desc:"+15% rate · +10 mood"},
-  {id:"thomas",nm:"Thomas — CEO",        emoji:"👔",   cost:50000,unlock:4,desc:"+30% global rate"},
+  {id:"jonas", nm:"💎 Jonas — VP of Design",emoji:"🧑‍🎨",cost:10000,unlock:2,desc:"+15% rate · +10 mood"},
+  {id:"thomas",nm:"💎 Thomas — CEO",        emoji:"👔",   cost:50000,unlock:4,desc:"+30% global rate"},
 ];
 const FAC=[
   {id:"desks", nm:"Desks",    emoji:"🪑",base:30, growth:1.10,unlock:1,desc:"+5 employee capacity"},
-  {id:"comp",  nm:"Computers",emoji:"🖥️",base:80, growth:1.10,unlock:1,desc:"+10% global rate"},
+  {id:"comp",  nm:"Computers",emoji:"🖥️",base:80, growth:1.10,unlock:1,desc:"+10% rate · a seat for 1 employee"},
   {id:"coffee",nm:"Coffee",   emoji:"☕",base:80, growth:1.13,unlock:1,desc:"slows mood decay"},
   {id:"food",  nm:"Food",     emoji:"🥪",base:300,growth:1.13,unlock:2,desc:"slows mood decay"},
 ];
@@ -180,14 +235,22 @@ const CULT_EVENT=[
 
 //============ STATE ============
 let S;
-function freshState(){return{cash:0,val:0,mood:80,level:1,own:{},oneoff:{},perlevel:{},treatCd:{},shares:0,ipo:false,quitT:0,last:Date.now(),won:false};}
-function load(){try{const r=localStorage.getItem("vintedExpansion");S=r?Object.assign(freshState(),JSON.parse(r)):freshState();}catch(e){S=freshState();}if(!S.own)S.own={};}
-function save(){try{S.last=Date.now();localStorage.setItem("vintedExpansion",JSON.stringify(S));}catch(e){}}
+const START_VAL=500;   // starting valuation budget
+function freshState(){return{val:START_VAL,mood:80,level:1,own:{},oneoff:{},perlevel:{},treatCd:{},shares:0,ipo:false,quitT:0,last:Date.now(),won:false,tips:{},seededStart:true,demo:false,demoT:0};}
+function load(){try{const r=localStorage.getItem("vintedExpansion");S=r?Object.assign(freshState(),JSON.parse(r)):freshState();}catch(e){S=freshState();}if(!S.own)S.own={};if(!S.tips)S.tips={};}
+function save(){if(S.demo)return;try{S.last=Date.now();localStorage.setItem("vintedExpansion",JSON.stringify(S));}catch(e){}}
 
 //============ HELPERS ============
 const $=id=>document.getElementById(id);
 const SUF=["","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"];
-function fmt(n){if(n<1000)return "€"+(n<10?n.toFixed(2):Math.floor(n));let i=0;while(n>=1000&&i<SUF.length-1){n/=1000;i++;}return "€"+n.toFixed(2)+SUF[i];}
+function fmt(n){
+  n=Math.max(0,n);
+  if(n<1000)return "€"+Math.round(n);                 // 1, 10, 100, 150
+  let i=0;while(n>=1000&&i<SUF.length-1){n/=1000;i++;}
+  let s=(n<10)?n.toFixed(1):Math.round(n).toString(); // 1.5K, 15K, 150K
+  s=s.replace(/\.0$/,'');                               // 1.0K -> 1K
+  return "€"+s+SUF[i];
+}
 const oc=id=>S.own[id]||0;
 const costOf=it=>Math.floor(it.base*Math.pow(it.growth,oc(it.id)));
 
@@ -196,96 +259,165 @@ const employees=()=>1+STAFF.reduce((s,it)=>s+oc(it.id),0);
 const capacity=()=>3+5*oc("desks");
 const globalMult=()=>1+0.10*oc("comp")+0.02*oc("learn")+(S.oneoff.jonas?0.15:0)+(S.oneoff.thomas?0.30:0)+(S.ipo?0.10:0);
 const levelMult=()=>Math.pow(2.8,S.level-1);
-const moodMult=()=>Math.max(0.5,Math.min(1.5,0.5+S.mood/100));
 const prestigeMult=()=>1+0.02*S.shares;
 const staffRateSum=()=>STAFF.reduce((s,it)=>s+oc(it.id)*it.rate,0);
-const rate=()=>(8+staffRateSum())*globalMult()*levelMult()*moodMult()*prestigeMult();
-const moodFloor=()=>Math.min(70,30+3*oc("salary")+2*oc("coffee")+2*oc("food"));
-const decayReduction=()=>Math.min(0.85,0.02*oc("coffee")+0.03*oc("food")+0.04*oc("team")+0.05*oc("offsite"));
-const decayPerSec=()=>(0.30+0.015*employees())*Math.pow(1.08,S.level-1)*(1-decayReduction());
+// gross earning power (structural, no mood)
+const grossRate=()=>(8+staffRateSum())*globalMult()*levelMult()*prestigeMult()*(S.demo?40:1);
+// NET change to valuation per second — positive above HEALTHY mood, NEGATIVE below it
+const netRate=()=>grossRate()*((S.mood-HEALTHY)/(100-HEALTHY))*GROWTH_SCALE;
+// mood decays over time (no safe floor) — permanent mood items only slow the decay
+const decayReduction=()=>Math.min(0.8,0.03*oc("salary")+0.02*oc("coffee")+0.03*oc("food")+0.04*oc("team")+0.05*oc("offsite"));
+// Level 1 is a gentle tutorial. From Level 2, mood decay ACCELERATES the longer you go without buying —
+// stable while you keep acting, snowballs into a crash when you idle. => quick actions or you lose.
+let lastBuy=Date.now();
+const idleMult=()=>{ if(S.level<=1) return 1; const idle=(Date.now()-lastBuy)/1000; return 1+Math.max(0,idle-2)*0.45; };
+const levelDecay=()=>S.level<=1?0.3:1.7+0.35*(S.level-2);
+const decayPerSec=()=>(0.6+0.02*employees())*levelDecay()*(1-decayReduction())*idleMult();
 const eventCost=it=>Math.floor((it.id==="vfest"?800:600)*Math.pow(3,S.level-1));
 const cdLeft=id=>Math.max(0,Math.ceil(((S.treatCd[id]||0)-Date.now())/1000));
 
 //============ SOUND ============
 let soundOn=true, musicStarted=false;
 function play(id,vol){if(!soundOn)return;const el=$(id);if(!el)return;try{const a=el.cloneNode();a.volume=vol||0.5;a.play().catch(()=>{});}catch(e){}}
-function startMusic(){if(musicStarted||!soundOn)return;musicStarted=true;const m=$("aMusic");m.volume=0.22;m.play().catch(()=>{musicStarted=false;});}
+const MUSIC_VOL=0.22;
+function startMusic(){if(musicStarted||!soundOn)return;musicStarted=true;const m=$("aMusic");m.volume=MUSIC_VOL;m.play().catch(()=>{musicStarted=false;});}
+let _duckT=null;
+function duckMusic(){const m=$("aMusic");if(m)m.volume=MUSIC_VOL*0.2;clearTimeout(_duckT);_duckT=setTimeout(restoreMusic,9000);} // -80%, with a safety restore
+function restoreMusic(){clearTimeout(_duckT);const m=$("aMusic");if(m)m.volume=MUSIC_VOL;}
 
 //============ TABS + SHEET ============
-const TABS=[{id:"staff",ic:"👥",label:"Staff"},{id:"facilities",ic:"🏢",label:"Facilities"},{id:"culture",ic:"🎉",label:"Culture"},{id:"business",ic:"💼",label:"Business"}];
+const TABS=[{id:"staff",ic:"👥",label:"Staff"},{id:"facilities",ic:"🏢",label:"Facilities"},{id:"culture",ic:"🙂",label:"Mood"}];
 let activeTab=null;
 function buildTabs(){
   const tb=$("tabbar");tb.innerHTML="";
   TABS.forEach(t=>{
     const d=document.createElement("div");
     d.className="tab t-"+t.id+(t.id===activeTab?" active":"");
-    d.innerHTML=`<div class="tic">${t.ic}</div><div class="lab">${t.label}</div>`;
+    // the Mood tab shows the live mood face (same emoji as the top-right pill)
+    const ic=t.id==="culture"?`<span id="moodTabIc">${moodIc(S.mood)}</span>`:t.ic;
+    d.innerHTML=`<div class="tic">${ic}</div><div class="lab">${t.label}</div>`;
     d.onclick=()=>{ startMusic(); if(activeTab===t.id){closeSheet();}else openSheet(t.id); };
     tb.appendChild(d);
   });
 }
 function openSheet(tab){activeTab=tab;$("sheetTitle").textContent=TABS.find(t=>t.id===tab).label;$("sheet").classList.add("open");buildTabs();renderList();}
-function closeSheet(){activeTab=null;$("sheet").classList.remove("open");buildTabs();}
+function closeSheet(){activeTab=null;liveRows=[];$("sheet").classList.remove("open");buildTabs();}
 $("sheetX")&&($("sheetX").onclick=closeSheet);
 
-function rowEl(o){
+// Rows are built ONCE per sheet-open; their values update in place so buttons never get
+// destroyed mid-tap (fixes unresponsive purchasing). get() recomputes the row's live state.
+let liveRows=[];
+function makeRow(get){
   const d=document.createElement("div");
-  d.className="row"+(o.lock?" lock":"");
-  d.innerHTML=`<div class="nm"><b>${o.nm}</b><span>${o.sub||""}</span></div>
-    <div class="price ${o.cant?"no":""}">${o.price}</div>`;
-  const btn=document.createElement("button");
-  btn.className="plus"+(o.biz?" biz":"");
-  btn.textContent=o.biz?"Level Up":"+";
-  btn.disabled=!o.canBuy;
-  if(o.canBuy)btn.onclick=o.onclick;
-  d.appendChild(btn);
-  return d;
+  const nm=document.createElement("div");nm.className="nm";
+  const b=document.createElement("b");const sp=document.createElement("span");
+  nm.appendChild(b);nm.appendChild(sp);
+  const price=document.createElement("div");
+  const btn=document.createElement("button");btn.textContent="+";
+  d.appendChild(nm);d.appendChild(price);d.appendChild(btn);
+  btn.onclick=()=>{const s=get();if(!s.lock&&s.onclick)s.onclick();};
+  function sync(){
+    const s=get();
+    d.className="row"+(s.lock?" lock":"");
+    b.textContent=s.nm;sp.textContent=s.sub||"";
+    price.textContent=s.price;price.className="price"+(s.cant?" no":"");
+    btn.className="plus"+(s.canBuy?"":" off");
+  }
+  sync();liveRows.push(sync);return d;
 }
+function syncSheet(){for(let i=0;i<liveRows.length;i++)liveRows[i]();}
 function renderList(){
   if(!activeTab)return;
-  const L=$("list");L.innerHTML="";
+  const L=$("list");L.innerHTML="";liveRows=[];
   if(activeTab==="staff"){
-    STAFF.forEach(it=>{const lock=S.level<it.unlock,c=costOf(it),full=employees()>=capacity();
-      L.appendChild(rowEl({nm:it.nm,sub:`+${it.rate} €/s · +1 employee · own ${oc(it.id)}`,price:lock?`Lv ${it.unlock}`:fmt(c),lock,cant:!lock&&full,canBuy:!lock&&!full&&S.cash>=c,onclick:()=>buyStaff(it)}));});
-    if(employees()>=capacity())L.insertAdjacentHTML("beforeend",`<div class="note">🪑 Desks full — buy Desks (Facilities) to hire more.</div>`);
-    STAFF_ONEOFF.forEach(it=>{const lock=S.level<it.unlock,b=S.oneoff[it.id];
-      L.appendChild(rowEl({nm:it.nm,sub:it.desc,price:b?"✓ hired":(lock?`Lv ${it.unlock}`:fmt(it.cost)),lock:lock||b,canBuy:!lock&&!b&&S.cash>=it.cost,onclick:()=>buyOneoff(it)}));});
+    STAFF.forEach(it=>L.appendChild(makeRow(()=>{
+      const lock=S.level<it.unlock,c=costOf(it),full=employees()>=capacity(),reqOK=it.id!=="prod"||prodReqOK(),compShort=oc("comp")<employees();
+      let sub;
+      if(it.id==="prod"&&!reqOK)sub="🔒 Needs 3 Eng · 1 Data · 1 Design each";
+      else if(compShort)sub="🔒 Need a Computer per employee (Facilities)";
+      else if(full)sub="🔒 Office full — buy Desks (Facilities)";
+      else sub=`+${it.rate} €/s · +1 employee · own ${oc(it.id)}`;
+      return{nm:it.nm,sub,price:lock?`Lv ${it.unlock}`:fmt(c),lock,cant:!lock&&(full||!reqOK||compShort),canBuy:!lock&&!full&&reqOK&&!compShort&&S.val>=c,onclick:()=>buyStaff(it)};
+    })));
+    STAFF_ONEOFF.forEach(it=>L.appendChild(makeRow(()=>{
+      const lock=S.level<it.unlock,bought=S.oneoff[it.id];
+      return{nm:it.nm,sub:it.desc,price:bought?"✓ hired":(lock?`Lv ${it.unlock}`:fmt(it.cost)),lock:lock||bought,canBuy:!lock&&!bought&&S.val>=it.cost,onclick:()=>buyOneoff(it)};
+    })));
   }else if(activeTab==="facilities"){
-    FAC.forEach(it=>{const lock=S.level<it.unlock,c=costOf(it);
-      L.appendChild(rowEl({nm:it.nm,sub:`${it.desc} · own ${oc(it.id)}`,price:lock?`Lv ${it.unlock}`:fmt(c),lock,canBuy:!lock&&S.cash>=c,onclick:()=>buyRepeat(it)}));});
-    FAC_TREAT.forEach(it=>{const lock=S.level<it.unlock,cd=cdLeft(it.id);
-      L.appendChild(rowEl({nm:it.nm,sub:it.desc,price:lock?`Lv ${it.unlock}`:(cd>0?cd+"s":fmt(it.cost)),lock,cant:cd>0,canBuy:!lock&&cd<=0&&S.cash>=it.cost,onclick:()=>buyTreat(it)}));});
+    FAC.forEach(it=>L.appendChild(makeRow(()=>{
+      const lock=S.level<it.unlock,c=costOf(it);
+      return{nm:it.nm,sub:`${it.desc} · own ${oc(it.id)}`,price:lock?`Lv ${it.unlock}`:fmt(c),lock,canBuy:!lock&&S.val>=c,onclick:()=>buyRepeat(it)};
+    })));
+    FAC_TREAT.forEach(it=>L.appendChild(makeRow(()=>{
+      const lock=S.level<it.unlock,cd=cdLeft(it.id);
+      return{nm:it.nm,sub:it.desc,price:lock?`Lv ${it.unlock}`:(cd>0?cd+"s":fmt(it.cost)),lock,cant:cd>0,canBuy:!lock&&cd<=0&&S.val>=it.cost,onclick:()=>buyTreat(it)};
+    })));
   }else if(activeTab==="culture"){
-    CULT.forEach(it=>{const lock=S.level<it.unlock,c=costOf(it);
-      L.appendChild(rowEl({nm:it.nm,sub:`${it.desc} · own ${oc(it.id)}`,price:lock?`Lv ${it.unlock}`:fmt(c),lock,canBuy:!lock&&S.cash>=c,onclick:()=>buyRepeat(it)}));});
-    CULT_EVENT.forEach(it=>{const lock=S.level<it.unlock,key=it.id+"_"+S.level,used=S.perlevel[key],c=eventCost(it);
-      L.appendChild(rowEl({nm:it.nm,sub:it.desc+" (+"+it.mood+" mood)",price:used?"✓ this level":(lock?`Lv ${it.unlock}`:fmt(c)),lock:lock||used,canBuy:!lock&&!used&&S.cash>=c,onclick:()=>buyEvent(it)}));});
-  }else if(activeTab==="business"){
-    if(S.level>=11){L.innerHTML=`<div class="note">🚀 You've reached <b>Vinted Space</b> — the final building.<br>Keep earning toward €10T to win!</div>`;return;}
-    const nl=S.level+1,need=UNLOCK_VAL[nl],cost=CASH_COST[nl],valOK=S.val>=need,cashOK=S.cash>=cost;
-    L.appendChild(rowEl({nm:"Level Up → "+STAGE_NAMES[nl-1],sub:valOK?`×2.8 returns · costs ${fmt(cost)} cash`:`needs valuation ${fmt(need)}`,price:valOK?fmt(cost):"🔒 "+fmt(need),cant:valOK&&!cashOK,canBuy:valOK&&cashOK,biz:true,onclick:levelUp}));
-    L.insertAdjacentHTML("beforeend",`<div class="note">Each level multiplies returns (×2.8) but mood decays faster.<br>You can skip leveling — but you'll never reach €10T.</div>`);
+    CULT.forEach(it=>L.appendChild(makeRow(()=>{
+      const lock=S.level<it.unlock,c=costOf(it);
+      return{nm:it.nm,sub:`${it.desc} · own ${oc(it.id)}`,price:lock?`Lv ${it.unlock}`:fmt(c),lock,canBuy:!lock&&S.val>=c,onclick:()=>buyRepeat(it)};
+    })));
+    CULT_EVENT.forEach(it=>L.appendChild(makeRow(()=>{
+      const lock=S.level<it.unlock,key=it.id+"_"+S.level,used=S.perlevel[key],c=eventCost(it);
+      return{nm:it.nm,sub:it.desc+" (+"+it.mood+" mood)",price:used?"✓ this level":(lock?`Lv ${it.unlock}`:fmt(c)),lock:lock||used,canBuy:!lock&&!used&&S.val>=c,onclick:()=>buyEvent(it)};
+    })));
   }
 }
 
 //============ BUY ============
-function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),1500);}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),3600);}
+// one-time teaching tips (persisted; a short cooldown keeps them from stacking up)
+let lastTip=0;
+function tip(id,msg){if(!S.tips)S.tips={};if(S.tips[id])return;if(Date.now()-lastTip<4500)return;S.tips[id]=1;lastTip=Date.now();toast(msg);}
+function checkTips(){
+  const staffOwned=STAFF.reduce((s,it)=>s+oc(it.id),0);
+  const early=S.level<=3;
+  // progressive onboarding for the first levels
+  if(S.level===1) tip("goal","🎯 Goal: grow your valuation to €10T. Tap Staff to hire your first team!");
+  if(staffOwned>=1) tip("hire","💡 Nice! Your valuation now rises faster. Keep hiring to speed it up.");
+  if(early && staffOwned>=1) tip("keepgoing","⚠️ Keep investing! Stop buying and mood, staff AND valuation all slide down. Every purchase lifts mood.");
+  if(early && staffOwned>=2) tip("desksinfo","🪑 Facilities → Desks add room for more staff; Computers boost earnings.");
+  if(early && staffOwned>=3) tip("moodhint","🙂 Peek at the Mood tab — happy staff earn more; unhappy ones start leaving.");
+  if(early && staffOwned>=4) tip("bizinfo","🚀 When your Level bar fills up, an Upgrade button appears — tap it to ×2.8 earnings and grow the building.");
+  // situational tips (any level)
+  if(oc("comp")<employees()) tip("comp","🖥️ Every employee needs a Computer — buy Computers (Facilities) before hiring.");
+  if(employees()>=capacity()) tip("desks","🪑 Office is full — buy Desks in Facilities to hire more people.");
+  if(S.mood<70 && S.mood>=LEAVE_MOOD) tip("mood","🙂 Mood is slipping. Mood tab → Coffee or a Salary raise keeps staff happy.");
+  if(S.mood<LEAVE_MOOD) tip("leave","⚠️ Mood below "+LEAVE_MOOD+"%! Staff are leaving and valuation is falling. Invest in Mood now.");
+  if(S.level===1 && S.val>=LEVEL_COST[2]*0.4) tip("bizhalf","💡 Almost at your first Level Up — the Upgrade button appears when the Level bar is full.");
+  if(S.level>=2) tip("leveled","🚀 Leveling multiplied your income! But mood decays faster now — keep it up.");
+}
 function floatUp(txt){const f=document.createElement("div");f.className="floatup";f.textContent=txt;f.style.left=(44+Math.random()*12)+"%";f.style.bottom="46%";$("stage").appendChild(f);setTimeout(()=>f.remove(),1100);}
-function buyStaff(it){if(S.level<it.unlock)return;if(employees()>=capacity()){toast("Need more Desks!");return;}const c=costOf(it);if(S.cash<c)return;S.cash-=c;S.own[it.id]=oc(it.id)+1;play("aBuy",0.5);floatUp("+"+it.rate+"/s");refresh();renderList();}
-function buyRepeat(it){if(S.level<it.unlock)return;const c=costOf(it);if(S.cash<c)return;S.cash-=c;S.own[it.id]=oc(it.id)+1;play("aBuy",0.5);if(["coffee","food","salary"].includes(it.id))S.mood=Math.min(100,S.mood+2);if(it.id==="learn")S.mood=Math.min(100,S.mood+1);refresh();renderList();}
-function buyOneoff(it){if(S.level<it.unlock||S.oneoff[it.id])return;if(S.cash<it.cost)return;S.cash-=it.cost;S.oneoff[it.id]=true;play(it.id==="jonas"?"aJonas":"aThomas",0.6);if(it.id==="jonas")S.mood=Math.min(100,S.mood+10);toast(it.nm.split("—")[0].trim()+" joined! 🎉");refresh();renderList();}
-function buyTreat(it){if(S.level<it.unlock||cdLeft(it.id)>0)return;if(S.cash<it.cost)return;S.cash-=it.cost;S.mood=Math.min(100,S.mood+it.mood);S.treatCd[it.id]=Date.now()+it.cd*1000;play("aBuy",0.5);toast("+"+it.mood+" mood "+it.emoji);refresh();renderList();}
-function buyEvent(it){const key=it.id+"_"+S.level;if(S.level<it.unlock||S.perlevel[key])return;const c=eventCost(it);if(S.cash<c)return;S.cash-=c;S.perlevel[key]=true;S.mood=Math.min(100,S.mood+it.mood);play("aMoney",0.4);toast(it.nm+"! +"+it.mood+" mood "+it.emoji);refresh();renderList();}
+function buyStaff(it){if(S.level<it.unlock)return;if(it.id==="prod"&&!prodReqOK()){toast("Each Product needs 3 Engineering, 1 Data & 1 Design+Research");return;}if(oc("comp")<employees()){toast("Need a Computer for every employee — buy Computers in Facilities");return;}if(employees()>=capacity()){toast("Need more Desks!");return;}const c=costOf(it);if(S.val<c){toast("Not enough valuation");return;}S.val-=c;S.own[it.id]=oc(it.id)+1;S.mood=Math.min(100,S.mood+6);lastBuy=Date.now();play("aBuy",0.5);floatUp("+"+it.rate+"/s");refresh();syncSheet();}
+function buyRepeat(it){if(S.level<it.unlock)return;const c=costOf(it);if(S.val<c){toast("Not enough valuation");return;}S.val-=c;S.own[it.id]=oc(it.id)+1;S.mood=Math.min(100,S.mood+(["salary","learn","team","offsite"].includes(it.id)?10:6));lastBuy=Date.now();play("aBuy",0.5);refresh();syncSheet();}
+function buyOneoff(it){if(S.level<it.unlock||S.oneoff[it.id])return;if(S.val<it.cost){toast("Not enough valuation");return;}S.val-=it.cost;S.oneoff[it.id]=true;lastBuy=Date.now();
+  if(it.id==="jonas"){S.mood=Math.min(100,S.mood+10);closeSheet();playJonasVP();jonasConfetti();}
+  else{closeSheet();playThomasStage();thomasAppear();}
+  toast(it.nm.split("—")[0].trim()+" joined! 🎉");refresh();syncSheet();}
+// Thomas.png floats in front of the building, holds ~3s, then dissolves
+function thomasAppear(){
+  const old=$("thomasFx"); if(old) old.remove();
+  const t=document.createElement("img");t.id="thomasFx";t.src="assets/thomas.png";
+  $("stage").appendChild(t);
+  requestAnimationFrame(()=>{t.style.opacity="1";});
+  setTimeout(()=>{t.style.opacity="0";setTimeout(()=>t.remove(),700);},3000);
+}
+// Jonas.png confetti (same fall movement as the bills) — extra pieces, staggered so it rains ~2s longer
+function jonasConfetti(){for(let i=0;i<44;i++){const c=document.createElement("img");c.src="assets/jonas.png";c.className="billfall";c.style.left=Math.random()*100+"%";c.style.width=(42+Math.random()*30)+"px";c.style.animationDuration=(1.8+Math.random()*1.8)+"s";c.style.animationDelay=(Math.random()*2)+"s";$("app").appendChild(c);setTimeout(()=>c.remove(),5800);}}
+// play the Jonas_VP clip three times in a row (music ducked until the last one ends)
+function playJonasVP(){const el=$("aJonasVP");if(!soundOn||!el)return;let n=0;duckMusic();const go=()=>{if(n>=3){restoreMusic();return;}n++;try{el.currentTime=0;el.play().catch(()=>{});}catch(e){}};el.onended=()=>{if(n<3)go();else restoreMusic();};go();}
+// play the Thomas stage clip once (music ducked until it ends)
+function playThomasStage(){const el=$("aThomasStage");if(!soundOn||!el)return;duckMusic();try{el.currentTime=0;el.volume=1;el.play().catch(()=>{});}catch(e){}el.onended=()=>restoreMusic();}
+function buyTreat(it){if(S.level<it.unlock||cdLeft(it.id)>0)return;if(S.val<it.cost){toast("Not enough valuation");return;}S.val-=it.cost;S.mood=Math.min(100,S.mood+it.mood);S.treatCd[it.id]=Date.now()+it.cd*1000;lastBuy=Date.now();play("aBuy",0.5);toast("+"+it.mood+" mood "+it.emoji);refresh();syncSheet();}
+function buyEvent(it){const key=it.id+"_"+S.level;if(S.level<it.unlock||S.perlevel[key])return;const c=eventCost(it);if(S.val<c){toast("Not enough valuation");return;}S.val-=c;S.perlevel[key]=true;S.mood=Math.min(100,S.mood+it.mood);lastBuy=Date.now();play("aMoney",0.4);toast(it.nm+"! +"+it.mood+" mood "+it.emoji);refresh();syncSheet();}
 function levelUp(){
-  if(S.level>=11)return;const nl=S.level+1,need=UNLOCK_VAL[nl],cost=CASH_COST[nl];
-  if(S.val<need){toast("Valuation too low");return;}if(S.cash<cost){toast("Not enough cash");return;}
-  S.cash-=cost;S.level=nl;S.mood=Math.min(100,S.mood+15);
-  let reward=Math.round(rate()*30);
-  if(nl===8&&!S.ipo){S.ipo=true;reward+=Math.round(rate()*120);}
-  S.cash+=reward;
-  closeSheet();                        // hide the Business sheet before the congrats modal appears
-  // congrats modal first; the building upgrade + sound + confetti play AFTER "Continue playing"
-  levelModal(nl,reward);refresh();
+  if(S.level>=11)return;const nl=S.level+1,cost=LEVEL_COST[nl];
+  if(S.val<cost){toast("Not enough valuation yet");return;}
+  S.val-=cost;S.level=nl;S.mood=Math.min(100,S.mood+15);lastBuy=Date.now();   // spend the valuation; no refund
+  if(nl===8) S.ipo=true;                                    // going public: permanent +10% rate (via globalMult)
+  notifiedFor=-1;                                           // re-arm the "ready" notice for the next level
+  closeSheet();                                             // hide any open sheet before the congrats modal
+  levelModal(nl);refresh();
 }
 
 //============ BUILDING / PEOPLE / SKY ============
@@ -297,7 +429,7 @@ function renderBuilding(animate){
 let lastSpawn=0;
 const PEOPLE=["emp1","emp2"];             // happy — walking IN
 const PEOPLE_SAD=["emp1_sad","emp2_sad"]; // leaving — sad-bubble sprites (taller: bubble sits above head)
-const LEAVE_MOOD=61;                       // below this, staff start leaving
+const LEAVE_MOOD=QUIT_MOOD;                 // below this: staff walk out
 function spawnPerson(now){
   const interval=Math.max(700,4200/employees());
   if(now-lastSpawn<interval)return;lastSpawn=now;
@@ -320,29 +452,47 @@ function spawnPerson(now){
   }
   setTimeout(()=>{p.style.opacity="0";setTimeout(()=>p.remove(),500);},3200);
 }
+const SKY_ASPECT=0.7460;   // day.png/night.png width/height
 function updateSky(){
-  // 60s cycle; night peaks mid-cycle
+  // day<->night crossfade over a 60s cycle
   const t=(Date.now()/60000)%1;
   const night=Math.max(0,Math.min(1,(Math.cos(t*2*Math.PI)* -0.5+0.5))); // 0 day ->1 night smoothly
-  $("bgNight").style.opacity=night.toFixed(3);
+  const d=$("bgDay"),n=$("bgNight");
+  n.style.opacity=night.toFixed(3);
+  // gentle left->right drift; wrap by exactly one tile width so the loop is seamless
+  const h=d.clientHeight||613;
+  const tileW=h*SKY_ASPECT;
+  const pan=((Date.now()/1000)*16)%tileW;   // ~16px/s
+  const pos=pan.toFixed(1)+"px center";
+  d.style.backgroundPosition=pos;
+  n.style.backgroundPosition=pos;
 }
 
 //============ HUD ============
-const moodIc=m=>m>=70?"😀":m>=61?"🙂":m>=35?"😟":"😡";
+const moodIc=m=>m>=85?"😀":m>=70?"🙂":m>=45?"😟":"😡";
+function updateLevelBox(){
+  $("lvltext").textContent="Level "+S.level;
+  const up=$("upgradeBtn");
+  if(S.level>=11){$("lvlfill").style.width="100%";$("lvlnext").textContent="Max — Vinted Space 🚀";if(up)up.classList.remove("show");return;}
+  const cost=LEVEL_COST[S.level+1];
+  $("lvlfill").style.width=Math.min(100,S.val/cost*100).toFixed(1)+"%";
+  $("lvlnext").textContent="Next: "+fmt(cost);
+  if(up){ if(!S.demo && S.val>=cost) up.classList.add("show"); else up.classList.remove("show"); }
+}
 function refresh(){
-  $("cash").textContent=fmt(S.cash).replace("€","");
+  $("cash").textContent=fmt(S.val).replace("€","");
   $("emps").textContent=employees();$("cap").textContent=capacity();
   $("mood").textContent=Math.round(S.mood);$("moodIc").textContent=moodIc(S.mood);
-  $("lvl").textContent=S.level;
+  updateLevelBox();
 }
 
 //============ MODAL ============
-function celebrate(){for(let i=0;i<30;i++){const c=document.createElement("div");c.className="confetti";c.style.left=Math.random()*100+"%";c.style.background=["#8b5cf6","#f5b50a","#37b24d","#09b1ba","#ff6b6b"][i%5];c.style.animationDuration=(1.4+Math.random()*1.3)+"s";$("app").appendChild(c);setTimeout(()=>c.remove(),3000);}}
+function celebrate(){for(let i=0;i<26;i++){const c=document.createElement("img");c.src="assets/bill.png";c.className="billfall";c.style.left=Math.random()*100+"%";c.style.width=(36+Math.random()*25)+"px";c.style.animationDuration=(1.6+Math.random()*1.6)+"s";$("app").appendChild(c);setTimeout(()=>c.remove(),3400);}}
 let pendingUpgrade=false;
-function levelModal(n,reward){
+function levelModal(n){
   $("mTag").textContent="Level up";$("mStar").textContent="★";
-  $("mTitle").innerHTML="Congratulations!<br>You have reached level "+n;
-  $("mRewardV").textContent=fmt(reward).replace("€","");$("mReward").style.display="";
+  $("mTitle").innerHTML="Level "+n+" — "+STAGE_NAMES[n-1]+"!<br><span style='font-size:14px;font-weight:700;color:#2b8a3e'>×2.8 earnings unlocked</span>";
+  $("mReward").style.display="none";   // single-currency: leveling costs valuation, no cash reward
   $("mGo").textContent="Continue playing";$("mGo").onclick=closeModal;
   pendingUpgrade=true;                 // building/sound/confetti fire when the modal is dismissed
   $("modal").classList.add("show");
@@ -378,12 +528,39 @@ function newShares(){return Math.floor(10*Math.sqrt(S.val/1e6));}
 function newVenture(){const keep=S.shares+newShares();S=freshState();S.shares=keep;closeModal();renderBuilding();refresh();save();toast("New Venture! +shares (permanent boost)");}
 
 //============ LOOP ============
+let notifiedFor=-1;
 function tick(dt){
-  const r=rate()*dt;S.cash+=r;S.val+=r;
-  const fl=moodFloor();S.mood-=decayPerSec()*dt;if(S.mood<fl)S.mood=fl;if(S.mood>100)S.mood=100;
+  S.mood-=decayPerSec()*dt;if(S.mood<0)S.mood=0;if(S.mood>100)S.mood=100;
+  S.val+=netRate()*dt;if(S.val<0)S.val=0;   // valuation falls when mood is below HEALTHY
+  if(S.demo){
+    // demo: auto-advance through every building stage
+    S.demoT=(S.demoT||0)+dt;
+    if(S.level<11 && S.demoT>=4){ S.demoT=0; demoAdvance(); }
+    return;
+  }
   // below LEAVE_MOOD staff start leaving — faster the lower the mood
   if(S.mood<LEAVE_MOOD){S.quitT+=dt;const iv=5+(S.mood/LEAVE_MOOD)*7;if(S.quitT>=iv){S.quitT=0;quitOne();}}else S.quitT=0;
+  // notify once when the next level-up becomes unlocked (valuation reached)
+  if(S.level<11 && S.val>=LEVEL_COST[S.level+1] && notifiedFor!==S.level+1){
+    notifiedFor=S.level+1; toast("🚀 Level Up ready — "+STAGE_NAMES[S.level]+"!"); play("aMoney",0.4);
+  }
   if(!S.won&&S.val>=WIN_VAL){S.won=true;winModal();}
+  checkTips();
+}
+function demoAdvance(){
+  if(S.level>=11)return;
+  S.level++; S.mood=100;
+  if(LEVEL_COST[S.level]) S.val=Math.max(S.val,LEVEL_COST[S.level]);
+  play("aLevel",0.6);setTimeout(()=>play("aStage",0.5),140);
+  transitionBuilding();
+  if(S.level>=11) setTimeout(()=>{ if(S.demo) demoDoneModal(); },1800);
+}
+function demoDoneModal(){
+  $("mTag").textContent="Demo complete";$("mStar").textContent="🚀";
+  $("mTitle").innerHTML="You've seen all 11 stages!";
+  $("mReward").style.display="none";
+  $("mGo").textContent="Start playing for real";$("mGo").onclick=()=>location.reload();
+  $("modal").classList.add("show");
 }
 function quitOne(){let best=null;STAFF.forEach(it=>{if(oc(it.id)>0&&(!best||oc(it.id)>oc(best.id)))best=it;});if(best){S.own[best.id]--;toast("😡 Someone quit! Boost mood.");}}
 let lastFrame=Date.now(),acc=0;
@@ -391,29 +568,53 @@ function frame(){
   const now=Date.now();let dt=(now-lastFrame)/1000;lastFrame=now;if(dt>1)dt=1;
   tick(dt);spawnPerson(now);updateSky();
   // HUD numbers every frame
-  $("cash").textContent=fmt(S.cash).replace("€","");
+  $("cash").textContent=fmt(S.val).replace("€","");
   $("mood").textContent=Math.round(S.mood);$("moodIc").textContent=moodIc(S.mood);
+  const mt=$("moodTabIc");if(mt)mt.textContent=moodIc(S.mood);
   $("emps").textContent=employees();
-  acc+=dt; if(acc>0.5){acc=0; if(activeTab)renderList();}
+  updateLevelBox();
+  acc+=dt; if(acc>0.2){acc=0; if(activeTab)syncSheet();}
   requestAnimationFrame(frame);
 }
 
 //============ OFFLINE ============
 function applyOffline(){
   const now=Date.now();let el=(now-(S.last||now))/1000;if(el<2)return;el=Math.min(el,8*3600);
-  const start=S.cash;let step=Math.max(1,el/200),t=0;
-  while(t<el){const d=Math.min(step,el-t);const r=rate()*d;S.cash+=r;S.val+=r;const fl=moodFloor();S.mood-=decayPerSec()*d;if(S.mood<fl)S.mood=fl;t+=d;}
-  const earned=S.cash-start;if(el>30)setTimeout(()=>toast("Welcome back! +"+fmt(earned)+" while away"),400);
+  const start=S.val;let step=Math.max(1,el/200),t=0;
+  while(t<el){const d=Math.min(step,el-t);S.mood-=decayPerSec()*d;if(S.mood<0)S.mood=0;S.val+=netRate()*d;if(S.val<0)S.val=0;t+=d;}
+  const delta=S.val-start;
+  if(el>30)setTimeout(()=>toast(delta>=0?("Welcome back! +"+fmt(delta)+" while away"):("😟 While you were away, mood fell and the company slipped "+fmt(-delta)+".")),400);
 }
 
 //============ INIT ============
+// slow rain of bills over the intro; stops itself once the intro is dismissed
+function startIntroRain(){
+  const iv=setInterval(()=>{
+    const intro=$("intro");
+    if(!intro||intro.classList.contains("hide")){clearInterval(iv);return;}
+    const b=document.createElement("img");b.src="assets/bill.png";b.className="introbill";
+    b.style.left=Math.random()*100+"%";
+    const dur=4.5+Math.random()*3.5;b.style.animationDuration=dur+"s";
+    b.style.width=(31+Math.random()*31)+"px";
+    intro.appendChild(b);
+    setTimeout(()=>b.remove(),dur*1000+300);
+  },650);
+}
 function init(){
-  load();applyOffline();buildTabs();renderBuilding();refresh();
-  $("sound").onclick=()=>{soundOn=!soundOn;$("sound").textContent=soundOn?"🔊":"🔇";const m=$("aMusic");if(!soundOn){m.pause();}else if(musicStarted){m.play().catch(()=>{});}};
-  $("reset").onclick=()=>{if(confirm("Reset all progress?")){localStorage.removeItem("vintedExpansion");S=freshState();closeSheet();renderBuilding();refresh();}};
-  document.addEventListener("pointerdown",startMusic,{once:true});
+  load();
+  // migrate older saves / broke fresh starts: grant starting capital once
+  if(!S.seededStart && S.level===1 && STAFF.reduce((s,it)=>s+oc(it.id),0)===0){ S.val=Math.max(S.val,START_VAL); }
+  S.seededStart=true;
+  applyOffline();buildTabs();renderBuilding();refresh();
+  $("upgradeBtn").onclick=levelUp;
+  $("btnStart").onclick=()=>{ startMusic(); $("intro").classList.add("hide"); };
+  $("btnDemo").onclick=()=>{ startMusic(); S=freshState(); S.demo=true; closeSheet(); renderBuilding(); buildTabs(); refresh(); $("intro").classList.add("hide"); };
+  $("reset").onclick=()=>{if(confirm("Reset progress and return to the menu?")){localStorage.removeItem("vintedExpansion");location.reload();}};
+  startMusic(); // try to play from the intro right away (falls back to first gesture if the browser blocks autoplay)
+  ["pointerdown","touchstart","keydown"].forEach(ev=>document.addEventListener(ev,startMusic,{once:true}));
   document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});
   setInterval(save,5000);
+  startIntroRain();
   requestAnimationFrame(frame);
   if(employees()===1&&S.val===0)setTimeout(()=>toast("👋 Tap Staff and hire your first designer!"),700);
 }
