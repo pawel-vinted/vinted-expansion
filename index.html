@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Vinted Expansion</title>
+<style>
+  :root{
+    --purple:#8b5cf6; --purple-d:#6d28d9; --green:#37b24d; --cash:#2fb344;
+    --pink:#ff6b6b; --yellow:#f5b50a; --teal:#09b1ba; --ink:#2b2f38; --muted:#8a93a3;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
+  html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#0f1620;color:var(--ink);}
+  #app{position:relative;max-width:440px;margin:0 auto;height:100dvh;overflow:hidden;background:#cfe0f5;display:flex;flex-direction:column;}
+
+  /* backgrounds */
+  .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  #bgNight{opacity:0;transition:opacity 1.2s linear;}
+
+  /* top HUD */
+  #hud{position:absolute;top:0;left:0;right:0;z-index:10;padding:10px 12px 0;}
+  .pills{display:flex;justify-content:space-between;align-items:flex-start;}
+  .col{display:flex;flex-direction:column;gap:8px;}
+  .pill{background:#fff;border-radius:22px;padding:4px 13px 4px 4px;display:flex;align-items:center;gap:7px;box-shadow:0 5px 14px rgba(35,45,75,.16);font-weight:800;font-size:15px;color:var(--ink);}
+  .pill .ic{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex:none;}
+  .ic.emp{background:var(--purple);} .ic.mood{background:var(--pink);} .ic.cash{background:var(--cash);} .ic.star{background:var(--yellow);}
+  .pill small{font-size:10px;color:var(--muted);font-weight:700;margin-left:-3px;}
+
+  /* stage / building */
+  #stage{position:relative;flex:1;min-height:200px;z-index:2;overflow:hidden;}
+  .bldg{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:78%;max-width:330px;filter:drop-shadow(0 14px 20px rgba(0,0,0,.22));}
+  #buildingNext{opacity:0;pointer-events:none;}
+  .person{position:absolute;height:46px;z-index:3;transform-origin:bottom center;transition:left 3.6s linear,bottom 3.6s linear,transform 3.6s linear,opacity .5s;pointer-events:none;}
+
+  .toast{position:absolute;top:96px;left:50%;transform:translateX(-50%) translateY(-6px);background:rgba(31,41,55,.94);color:#fff;font-weight:700;font-size:13px;padding:8px 15px;border-radius:22px;z-index:30;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap;max-width:90%;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .floatup{position:absolute;font-weight:800;color:#2b8a3e;font-size:14px;z-index:20;pointer-events:none;animation:fl 1.1s ease-out forwards;text-shadow:0 1px 2px rgba(255,255,255,.7);}
+  @keyframes fl{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-40px)}}
+
+  /* tab bar */
+  #tabbar{position:relative;z-index:12;display:flex;gap:6px;padding:9px 10px calc(9px + env(safe-area-inset-bottom));background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -5px 20px rgba(35,45,75,.10);}
+  .tab{flex:1;padding:7px 2px 5px;text-align:center;cursor:pointer;border-radius:14px;transition:background .15s;}
+  .tab.active{background:#f4f1fe;}
+  .tab .tic{width:38px;height:38px;margin:0 auto 3px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;background:#fff;box-shadow:0 2px 6px rgba(35,45,75,.12);}
+  .tab .lab{font-size:11px;font-weight:800;color:#5b6472;}
+  .tab.active .lab{color:var(--ink);}
+  .t-staff .tic{box-shadow:inset 0 0 0 2px var(--purple),0 2px 6px rgba(35,45,75,.10);}
+  .t-facilities .tic{box-shadow:inset 0 0 0 2px var(--green),0 2px 6px rgba(35,45,75,.10);}
+  .t-culture .tic{box-shadow:inset 0 0 0 2px var(--pink),0 2px 6px rgba(35,45,75,.10);}
+  .t-business .tic{box-shadow:inset 0 0 0 2px var(--teal),0 2px 6px rgba(35,45,75,.10);}
+
+  /* shop sheet */
+  #sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;transform:translateY(110%);transition:transform .32s cubic-bezier(.4,0,.2,1);max-height:66%;display:flex;flex-direction:column;z-index:40;box-shadow:0 -10px 40px rgba(0,0,0,.20);}
+  #sheet.open{transform:translateY(0);}
+  .sheethead{display:flex;align-items:center;justify-content:center;position:relative;padding:16px 16px 8px;}
+  .sheethead h2{margin:0;font-size:17px;color:#3a4150;}
+  .sheethead .x{position:absolute;right:14px;top:13px;font-size:22px;color:#9aa3b2;cursor:pointer;line-height:1;background:none;border:none;}
+  #list{overflow-y:auto;padding:4px 0 14px;}
+  .row{display:flex;align-items:center;gap:11px;border:1.5px solid #eef1f6;border-radius:15px;padding:11px 12px;margin:7px 16px;transition:opacity .2s,border-color .2s;}
+  .row.lock{opacity:.4;}
+  .row .nm{flex:1;min-width:0;}
+  .row .nm b{font-size:14.5px;font-weight:800;display:block;color:var(--ink);}
+  .row .nm span{font-size:11px;color:var(--muted);}
+  .row .price{font-weight:800;font-size:14px;color:var(--ink);white-space:nowrap;}
+  .row .price.no{color:#c9912a;}
+  .plus{width:36px;height:36px;flex:none;border-radius:11px;background:var(--purple);color:#fff;font-size:22px;font-weight:700;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 8px rgba(124,58,237,.3);}
+  .plus:active{transform:scale(.92);}
+  .plus:disabled{background:#cfd6e0;box-shadow:none;cursor:default;}
+  .plus.biz{background:var(--teal);box-shadow:0 3px 8px rgba(9,177,186,.3);width:auto;padding:0 16px;font-size:14px;font-weight:800;}
+  .note{font-size:11.5px;color:var(--muted);text-align:center;padding:2px 22px 12px;line-height:1.45;}
+
+  #ctrls{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:11;display:flex;gap:6px;}
+  #ctrls button{background:rgba(255,255,255,.7);border:none;border-radius:13px;height:24px;padding:0 8px;font-size:11px;font-weight:700;color:#6b7280;cursor:pointer;}
+
+  /* modal */
+  #modal{position:absolute;inset:0;background:rgba(255,255,255,.0);backdrop-filter:blur(2px);z-index:60;display:none;align-items:center;justify-content:center;padding:22px;}
+  #modal.show{display:flex;background:rgba(20,26,38,.35);}
+  .card{background:#fff;border-radius:24px;width:100%;max-width:340px;padding:18px 20px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;}
+  .card .mh{font-size:15px;font-weight:800;color:#3a4150;margin-bottom:6px;}
+  .card .x{position:absolute;right:16px;top:14px;font-size:22px;color:#9aa3b2;background:none;border:none;cursor:pointer;}
+  .bigstar{width:84px;height:84px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:44px;color:#fff;margin:14px auto 16px;box-shadow:0 8px 20px rgba(245,181,10,.4);}
+  .card h1{font-size:22px;margin:0 0 14px;color:var(--ink);line-height:1.25;}
+  .rewardpill{display:inline-flex;align-items:center;gap:7px;background:#f3f6fa;border-radius:20px;padding:6px 14px 6px 6px;font-weight:800;font-size:15px;}
+  .rewardpill .ic{width:26px;height:26px;border-radius:50%;background:var(--cash);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .card button.go{margin-top:22px;background:var(--purple);color:#fff;border:none;font-weight:800;font-size:15px;padding:13px 26px;border-radius:26px;cursor:pointer;width:100%;}
+  .confetti{position:absolute;width:9px;height:13px;top:-20px;z-index:55;animation:fall linear forwards;}
+  @keyframes fall{to{transform:translateY(110vh) rotate(560deg);opacity:.7}}
+</style>
+</head>
+<body>
+<div id="app">
+  <img id="bgDay" class="bg" src="assets/bg/day.png" alt="">
+  <img id="bgNight" class="bg" src="assets/bg/night.png" alt="">
+
+  <div id="ctrls"><button id="sound">🔊</button><button id="reset">reset</button></div>
+
+  <div id="hud">
+    <div class="pills">
+      <div class="col">
+        <div class="pill"><span class="ic emp">👥</span><span id="emps">1</span><small>/<span id="cap">3</span></small></div>
+        <div class="pill"><span class="ic mood" id="moodIc">😀</span><span id="mood">80</span><small>%</small></div>
+      </div>
+      <div class="col" style="align-items:flex-end">
+        <div class="pill"><span class="ic cash">€</span><span id="cash">0</span></div>
+        <div class="pill"><span class="ic star">★</span><span id="lvl">1</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="stage">
+    <img id="building" class="bldg" src="assets/buildings/stage01.png" alt="HQ">
+    <img id="buildingNext" class="bldg" alt="">
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <div id="tabbar"></div>
+
+  <div id="sheet">
+    <div class="sheethead"><h2 id="sheetTitle">Staff</h2><button class="x" id="sheetX">✕</button></div>
+    <div id="list"></div>
+  </div>
+
+  <div id="modal"><div class="card">
+    <div class="mh" id="mTag">Level up</div>
+    <button class="x" id="mX">✕</button>
+    <div class="bigstar" id="mStar">★</div>
+    <h1 id="mTitle"></h1>
+    <div class="rewardpill" id="mReward"><span class="ic">€</span><span id="mRewardV"></span></div>
+    <button class="go" id="mGo">Continue playing</button>
+  </div></div>
+
+  <!-- sounds -->
+  <audio id="aBuy" src="assets/sfx/buy.wav" preload="auto"></audio>
+  <audio id="aMoney" src="assets/sfx/money.wav" preload="auto"></audio>
+  <audio id="aJonas" src="assets/sfx/jonas.wav" preload="auto"></audio>
+  <audio id="aThomas" src="assets/sfx/thomas.wav" preload="auto"></audio>
+  <audio id="aStage" src="assets/sfx/stage.wav" preload="auto"></audio>
+  <audio id="aLevel" src="assets/sfx/level.wav" preload="auto"></audio>
+  <audio id="aMusic" src="assets/sfx/music.ogg" preload="auto" loop></audio>
+</div>
+
+<script>
+"use strict";
+//============ DATA ============
+const STAGE_NAMES=["MVP","Pro App – Marketplace","Scaling EU","Vinted Go","New Verticals","Vinted Pay","Vinted Cars","IPO","Vinted Forest","Vinted Satellites","Vinted Space"];
+const UNLOCK_VAL=[0,0,1e3,1e4,1e5,1e6,1e7,1e8,1e9,1e10,1e11,1e12];
+const CASH_COST =[0,0,150,1500,15000,150000,1.5e6,1.5e7,1.5e8,1.5e9,1.5e10,1.5e11];
+const WIN_VAL=10000000000001;
+
+const STAFF=[
+  {id:"dr",  nm:"Design + Research",emoji:"🎨",base:6,  growth:1.07,rate:3, unlock:1},
+  {id:"eng", nm:"Engineering",      emoji:"💻",base:15, growth:1.07,rate:8, unlock:1},
+  {id:"data",nm:"Data",            emoji:"📊",base:45, growth:1.08,rate:22,unlock:2},
+  {id:"prod",nm:"Product",         emoji:"📦",base:120,growth:1.08,rate:60,unlock:3},
+];
+const STAFF_ONEOFF=[
+  {id:"jonas", nm:"Jonas — VP of Design",emoji:"🧑‍🎨",cost:20000,unlock:3,desc:"+15% rate · +10 mood"},
+  {id:"thomas",nm:"Thomas — CEO",        emoji:"👔",   cost:50000,unlock:4,desc:"+30% global rate"},
+];
+const FAC=[
+  {id:"desks", nm:"Desks",    emoji:"🪑",base:30, growth:1.10,unlock:1,desc:"+5 employee capacity"},
+  {id:"comp",  nm:"Computers",emoji:"🖥️",base:80, growth:1.10,unlock:1,desc:"+10% global rate"},
+  {id:"coffee",nm:"Coffee",   emoji:"☕",base:80, growth:1.13,unlock:1,desc:"slows mood decay"},
+  {id:"food",  nm:"Food",     emoji:"🥪",base:300,growth:1.13,unlock:2,desc:"slows mood decay"},
+];
+const FAC_TREAT=[
+  {id:"sureliai",nm:"Sūreliai",emoji:"🧀",cost:250, unlock:1,mood:8, cd:60, desc:"+8 mood treat"},
+  {id:"sauna",   nm:"Sauna",   emoji:"🧖",cost:4000,unlock:3,mood:25,cd:180,desc:"+25 mood"},
+];
+const CULT=[
+  {id:"salary",nm:"Salary increase",   emoji:"💶",base:500, growth:1.15,unlock:2,desc:"+mood floor (anti-quit)"},
+  {id:"learn", nm:"Learning Budget",   emoji:"📚",base:200, growth:1.13,unlock:2,desc:"+2% rate, +mood"},
+  {id:"team",  nm:"Team-building",     emoji:"🤝",base:350, growth:1.14,unlock:3,desc:"slows mood decay"},
+  {id:"offsite",nm:"Offsite",          emoji:"🏝️",base:2000,growth:1.15,unlock:4,desc:"+mood ceiling & floor"},
+];
+const CULT_EVENT=[
+  {id:"vfest", nm:"V-Fest",      emoji:"🎪",unlock:2,mood:40,desc:"big mood boost — once per level"},
+  {id:"winter",nm:"Winter Party",emoji:"❄️",unlock:2,mood:35,desc:"festive boost — once per level"},
+];
+
+//============ STATE ============
+let S;
+function freshState(){return{cash:0,val:0,mood:80,level:1,own:{},oneoff:{},perlevel:{},treatCd:{},shares:0,ipo:false,quitT:0,last:Date.now(),won:false};}
+function load(){try{const r=localStorage.getItem("vintedExpansion");S=r?Object.assign(freshState(),JSON.parse(r)):freshState();}catch(e){S=freshState();}if(!S.own)S.own={};}
+function save(){try{S.last=Date.now();localStorage.setItem("vintedExpansion",JSON.stringify(S));}catch(e){}}
+
+//============ HELPERS ============
+const $=id=>document.getElementById(id);
+const SUF=["","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"];
+function fmt(n){if(n<1000)return "€"+(n<10?n.toFixed(2):Math.floor(n));let i=0;while(n>=1000&&i<SUF.length-1){n/=1000;i++;}return "€"+n.toFixed(2)+SUF[i];}
+const oc=id=>S.own[id]||0;
+const costOf=it=>Math.floor(it.base*Math.pow(it.growth,oc(it.id)));
+
+//============ DERIVED ============
+const employees=()=>1+STAFF.reduce((s,it)=>s+oc(it.id),0);
+const capacity=()=>3+5*oc("desks");
+const globalMult=()=>1+0.10*oc("comp")+0.02*oc("learn")+(S.oneoff.jonas?0.15:0)+(S.oneoff.thomas?0.30:0)+(S.ipo?0.10:0);
+const levelMult=()=>Math.pow(2.8,S.level-1);
+const moodMult=()=>Math.max(0.5,Math.min(1.5,0.5+S.mood/100));
+const prestigeMult=()=>1+0.02*S.shares;
+const staffRateSum=()=>STAFF.reduce((s,it)=>s+oc(it.id)*it.rate,0);
+const rate=()=>(8+staffRateSum())*globalMult()*levelMult()*moodMult()*prestigeMult();
+const moodFloor=()=>Math.min(70,30+3*oc("salary")+2*oc("coffee")+2*oc("food"));
+const decayReduction=()=>Math.min(0.85,0.02*oc("coffee")+0.03*oc("food")+0.04*oc("team")+0.05*oc("offsite"));
+const decayPerSec=()=>(0.30+0.015*employees())*Math.pow(1.08,S.level-1)*(1-decayReduction());
+const eventCost=it=>Math.floor((it.id==="vfest"?800:600)*Math.pow(3,S.level-1));
+const cdLeft=id=>Math.max(0,Math.ceil(((S.treatCd[id]||0)-Date.now())/1000));
+
+//============ SOUND ============
+let soundOn=true, musicStarted=false;
+function play(id,vol){if(!soundOn)return;const el=$(id);if(!el)return;try{const a=el.cloneNode();a.volume=vol||0.5;a.play().catch(()=>{});}catch(e){}}
+function startMusic(){if(musicStarted||!soundOn)return;musicStarted=true;const m=$("aMusic");m.volume=0.22;m.play().catch(()=>{musicStarted=false;});}
+
+//============ TABS + SHEET ============
+const TABS=[{id:"staff",ic:"👥",label:"Staff"},{id:"facilities",ic:"🏢",label:"Facilities"},{id:"culture",ic:"🎉",label:"Culture"},{id:"business",ic:"💼",label:"Business"}];
+let activeTab=null;
+function buildTabs(){
+  const tb=$("tabbar");tb.innerHTML="";
+  TABS.forEach(t=>{
+    const d=document.createElement("div");
+    d.className="tab t-"+t.id+(t.id===activeTab?" active":"");
+    d.innerHTML=`<div class="tic">${t.ic}</div><div class="lab">${t.label}</div>`;
+    d.onclick=()=>{ startMusic(); if(activeTab===t.id){closeSheet();}else openSheet(t.id); };
+    tb.appendChild(d);
+  });
+}
+function openSheet(tab){activeTab=tab;$("sheetTitle").textContent=TABS.find(t=>t.id===tab).label;$("sheet").classList.add("open");buildTabs();renderList();}
+function closeSheet(){activeTab=null;$("sheet").classList.remove("open");buildTabs();}
+$("sheetX")&&($("sheetX").onclick=closeSheet);
+
+function rowEl(o){
+  const d=document.createElement("div");
+  d.className="row"+(o.lock?" lock":"");
+  d.innerHTML=`<div class="nm"><b>${o.nm}</b><span>${o.sub||""}</span></div>
+    <div class="price ${o.cant?"no":""}">${o.price}</div>`;
+  const btn=document.createElement("button");
+  btn.className="plus"+(o.biz?" biz":"");
+  btn.textContent=o.biz?"Level Up":"+";
+  btn.disabled=!o.canBuy;
+  if(o.canBuy)btn.onclick=o.onclick;
+  d.appendChild(btn);
+  return d;
+}
+function renderList(){
+  if(!activeTab)return;
+  const L=$("list");L.innerHTML="";
+  if(activeTab==="staff"){
+    STAFF.forEach(it=>{const lock=S.level<it.unlock,c=costOf(it),full=employees()>=capacity();
+      L.appendChild(rowEl({nm:it.nm,sub:`+${it.rate} €/s · +1 employee · own ${oc(it.id)}`,price:lock?`Lv ${it.unlock}`:fmt(c),lock,cant:!lock&&full,canBuy:!lock&&!full&&S.cash>=c,onclick:()=>buyStaff(it)}));});
+    if(employees()>=capacity())L.insertAdjacentHTML("beforeend",`<div class="note">🪑 Desks full — buy Desks (Facilities) to hire more.</div>`);
+    STAFF_ONEOFF.forEach(it=>{const lock=S.level<it.unlock,b=S.oneoff[it.id];
+      L.appendChild(rowEl({nm:it.nm,sub:it.desc,price:b?"✓ hired":(lock?`Lv ${it.unlock}`:fmt(it.cost)),lock:lock||b,canBuy:!lock&&!b&&S.cash>=it.cost,onclick:()=>buyOneoff(it)}));});
+  }else if(activeTab==="facilities"){
+    FAC.forEach(it=>{const lock=S.level<it.unlock,c=costOf(it);
+      L.appendChild(rowEl({nm:it.nm,sub:`${it.desc} · own ${oc(it.id)}`,price:lock?`Lv ${it.unlock}`:fmt(c),lock,canBuy:!lock&&S.cash>=c,onclick:()=>buyRepeat(it)}));});
+    FAC_TREAT.forEach(it=>{const lock=S.level<it.unlock,cd=cdLeft(it.id);
+      L.appendChild(rowEl({nm:it.nm,sub:it.desc,price:lock?`Lv ${it.unlock}`:(cd>0?cd+"s":fmt(it.cost)),lock,cant:cd>0,canBuy:!lock&&cd<=0&&S.cash>=it.cost,onclick:()=>buyTreat(it)}));});
+  }else if(activeTab==="culture"){
+    CULT.forEach(it=>{const lock=S.level<it.unlock,c=costOf(it);
+      L.appendChild(rowEl({nm:it.nm,sub:`${it.desc} · own ${oc(it.id)}`,price:lock?`Lv ${it.unlock}`:fmt(c),lock,canBuy:!lock&&S.cash>=c,onclick:()=>buyRepeat(it)}));});
+    CULT_EVENT.forEach(it=>{const lock=S.level<it.unlock,key=it.id+"_"+S.level,used=S.perlevel[key],c=eventCost(it);
+      L.appendChild(rowEl({nm:it.nm,sub:it.desc+" (+"+it.mood+" mood)",price:used?"✓ this level":(lock?`Lv ${it.unlock}`:fmt(c)),lock:lock||used,canBuy:!lock&&!used&&S.cash>=c,onclick:()=>buyEvent(it)}));});
+  }else if(activeTab==="business"){
+    if(S.level>=11){L.innerHTML=`<div class="note">🚀 You've reached <b>Vinted Space</b> — the final building.<br>Keep earning toward €10T to win!</div>`;return;}
+    const nl=S.level+1,need=UNLOCK_VAL[nl],cost=CASH_COST[nl],valOK=S.val>=need,cashOK=S.cash>=cost;
+    L.appendChild(rowEl({nm:"Level Up → "+STAGE_NAMES[nl-1],sub:valOK?`×2.8 returns · costs ${fmt(cost)} cash`:`needs valuation ${fmt(need)}`,price:valOK?fmt(cost):"🔒 "+fmt(need),cant:valOK&&!cashOK,canBuy:valOK&&cashOK,biz:true,onclick:levelUp}));
+    L.insertAdjacentHTML("beforeend",`<div class="note">Each level multiplies returns (×2.8) but mood decays faster.<br>You can skip leveling — but you'll never reach €10T.</div>`);
+  }
+}
+
+//============ BUY ============
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),1500);}
+function floatUp(txt){const f=document.createElement("div");f.className="floatup";f.textContent=txt;f.style.left=(44+Math.random()*12)+"%";f.style.bottom="46%";$("stage").appendChild(f);setTimeout(()=>f.remove(),1100);}
+function buyStaff(it){if(S.level<it.unlock)return;if(employees()>=capacity()){toast("Need more Desks!");return;}const c=costOf(it);if(S.cash<c)return;S.cash-=c;S.own[it.id]=oc(it.id)+1;play("aBuy",0.5);floatUp("+"+it.rate+"/s");refresh();renderList();}
+function buyRepeat(it){if(S.level<it.unlock)return;const c=costOf(it);if(S.cash<c)return;S.cash-=c;S.own[it.id]=oc(it.id)+1;play("aBuy",0.5);if(["coffee","food","salary"].includes(it.id))S.mood=Math.min(100,S.mood+2);if(it.id==="learn")S.mood=Math.min(100,S.mood+1);refresh();renderList();}
+function buyOneoff(it){if(S.level<it.unlock||S.oneoff[it.id])return;if(S.cash<it.cost)return;S.cash-=it.cost;S.oneoff[it.id]=true;play(it.id==="jonas"?"aJonas":"aThomas",0.6);if(it.id==="jonas")S.mood=Math.min(100,S.mood+10);toast(it.nm.split("—")[0].trim()+" joined! 🎉");refresh();renderList();}
+function buyTreat(it){if(S.level<it.unlock||cdLeft(it.id)>0)return;if(S.cash<it.cost)return;S.cash-=it.cost;S.mood=Math.min(100,S.mood+it.mood);S.treatCd[it.id]=Date.now()+it.cd*1000;play("aBuy",0.5);toast("+"+it.mood+" mood "+it.emoji);refresh();renderList();}
+function buyEvent(it){const key=it.id+"_"+S.level;if(S.level<it.unlock||S.perlevel[key])return;const c=eventCost(it);if(S.cash<c)return;S.cash-=c;S.perlevel[key]=true;S.mood=Math.min(100,S.mood+it.mood);play("aMoney",0.4);toast(it.nm+"! +"+it.mood+" mood "+it.emoji);refresh();renderList();}
+function levelUp(){
+  if(S.level>=11)return;const nl=S.level+1,need=UNLOCK_VAL[nl],cost=CASH_COST[nl];
+  if(S.val<need){toast("Valuation too low");return;}if(S.cash<cost){toast("Not enough cash");return;}
+  S.cash-=cost;S.level=nl;S.mood=Math.min(100,S.mood+15);
+  let reward=Math.round(rate()*30);
+  if(nl===8&&!S.ipo){S.ipo=true;reward+=Math.round(rate()*120);}
+  S.cash+=reward;
+  closeSheet();                        // hide the Business sheet before the congrats modal appears
+  // congrats modal first; the building upgrade + sound + confetti play AFTER "Continue playing"
+  levelModal(nl,reward);refresh();
+}
+
+//============ BUILDING / PEOPLE / SKY ============
+function pad(n){return n<10?"0"+n:""+n;}
+function renderBuilding(animate){
+  const b=$("building");b.src="assets/buildings/stage"+pad(S.level)+".png";
+  if(animate){b.classList.add("pop");setTimeout(()=>b.classList.remove("pop"),460);}
+}
+let lastSpawn=0;
+const PEOPLE=["emp1","emp2"];             // happy — walking IN
+const PEOPLE_SAD=["emp1_sad","emp2_sad"]; // leaving — sad-bubble sprites (taller: bubble sits above head)
+const LEAVE_MOOD=61;                       // below this, staff start leaving
+function spawnPerson(now){
+  const interval=Math.max(700,4200/employees());
+  if(now-lastSpawn<interval)return;lastSpawn=now;
+  const st=$("stage");if(st.querySelectorAll(".person").length>14)return;
+  const leaving=S.mood<LEAVE_MOOD;
+  const set=leaving?PEOPLE_SAD:PEOPLE;
+  const p=document.createElement("img");p.className="person";
+  p.src="assets/people/"+set[Math.floor(Math.random()*set.length)]+".png";
+  if(leaving){
+    // reversed: start at the door (small/far), walk OUT to bottom-left corner (big/near)
+    p.style.height="60px"; // taller so body matches happy sprites; sad bubble floats above
+    p.style.left=(37+Math.random()*4)+"%";p.style.bottom=(15+Math.random()*4)+"%";p.style.transform="scale(0.8)";p.style.opacity="0.95";
+    st.appendChild(p);
+    requestAnimationFrame(()=>{p.style.left="-12%";p.style.bottom="2%";p.style.transform="scale(1)";});
+  }else{
+    // entering: start bottom-left corner (big/near), walk IN toward the door (small/far)
+    p.style.left="-10%";p.style.bottom="2%";p.style.transform="scale(1)";p.style.opacity="0.95";
+    st.appendChild(p);
+    requestAnimationFrame(()=>{p.style.left=(37+Math.random()*4)+"%";p.style.bottom=(15+Math.random()*4)+"%";p.style.transform="scale(0.8)";});
+  }
+  setTimeout(()=>{p.style.opacity="0";setTimeout(()=>p.remove(),500);},3200);
+}
+function updateSky(){
+  // 60s cycle; night peaks mid-cycle
+  const t=(Date.now()/60000)%1;
+  const night=Math.max(0,Math.min(1,(Math.cos(t*2*Math.PI)* -0.5+0.5))); // 0 day ->1 night smoothly
+  $("bgNight").style.opacity=night.toFixed(3);
+}
+
+//============ HUD ============
+const moodIc=m=>m>=70?"😀":m>=61?"🙂":m>=35?"😟":"😡";
+function refresh(){
+  $("cash").textContent=fmt(S.cash).replace("€","");
+  $("emps").textContent=employees();$("cap").textContent=capacity();
+  $("mood").textContent=Math.round(S.mood);$("moodIc").textContent=moodIc(S.mood);
+  $("lvl").textContent=S.level;
+}
+
+//============ MODAL ============
+function celebrate(){for(let i=0;i<30;i++){const c=document.createElement("div");c.className="confetti";c.style.left=Math.random()*100+"%";c.style.background=["#8b5cf6","#f5b50a","#37b24d","#09b1ba","#ff6b6b"][i%5];c.style.animationDuration=(1.4+Math.random()*1.3)+"s";$("app").appendChild(c);setTimeout(()=>c.remove(),3000);}}
+let pendingUpgrade=false;
+function levelModal(n,reward){
+  $("mTag").textContent="Level up";$("mStar").textContent="★";
+  $("mTitle").innerHTML="Congratulations!<br>You have reached level "+n;
+  $("mRewardV").textContent=fmt(reward).replace("€","");$("mReward").style.display="";
+  $("mGo").textContent="Continue playing";$("mGo").onclick=closeModal;
+  pendingUpgrade=true;                 // building/sound/confetti fire when the modal is dismissed
+  $("modal").classList.add("show");
+}
+function finishLevelUp(){
+  if(!pendingUpgrade)return;pendingUpgrade=false;
+  play("aLevel",0.6);setTimeout(()=>play("aStage",0.5),160);
+  transitionBuilding();celebrate();
+}
+// crossfade + pop between the old and new building sprites
+function transitionBuilding(){
+  const b=$("building"),nx=$("buildingNext");
+  nx.src="assets/buildings/stage"+pad(S.level)+".png";
+  nx.style.transition="none";nx.style.opacity="0";nx.style.transform="translateX(-50%) scale(0.86)";
+  requestAnimationFrame(()=>{
+    nx.style.transition="opacity .7s ease, transform .75s cubic-bezier(.34,1.56,.64,1)";
+    b.style.transition="opacity .7s ease";
+    nx.style.opacity="1";nx.style.transform="translateX(-50%) scale(1)";
+    b.style.opacity="0";
+  });
+  setTimeout(()=>{b.src=nx.src;b.style.transition="none";b.style.opacity="1";nx.style.opacity="0";},740);
+}
+function winModal(){
+  $("mTag").textContent="Victory";$("mStar").textContent="🚀";
+  $("mTitle").innerHTML="€10 Trillion!<br>Vinted conquered space.";
+  $("mReward").style.display="none";
+  $("mGo").textContent="Start New Venture (+"+newShares()+" shares)";$("mGo").onclick=newVenture;
+  $("modal").classList.add("show");celebrate();
+}
+function closeModal(){$("modal").classList.remove("show");finishLevelUp();}
+$("mX")&&($("mX").onclick=closeModal);
+function newShares(){return Math.floor(10*Math.sqrt(S.val/1e6));}
+function newVenture(){const keep=S.shares+newShares();S=freshState();S.shares=keep;closeModal();renderBuilding();refresh();save();toast("New Venture! +shares (permanent boost)");}
+
+//============ LOOP ============
+function tick(dt){
+  const r=rate()*dt;S.cash+=r;S.val+=r;
+  const fl=moodFloor();S.mood-=decayPerSec()*dt;if(S.mood<fl)S.mood=fl;if(S.mood>100)S.mood=100;
+  // below LEAVE_MOOD staff start leaving — faster the lower the mood
+  if(S.mood<LEAVE_MOOD){S.quitT+=dt;const iv=5+(S.mood/LEAVE_MOOD)*7;if(S.quitT>=iv){S.quitT=0;quitOne();}}else S.quitT=0;
+  if(!S.won&&S.val>=WIN_VAL){S.won=true;winModal();}
+}
+function quitOne(){let best=null;STAFF.forEach(it=>{if(oc(it.id)>0&&(!best||oc(it.id)>oc(best.id)))best=it;});if(best){S.own[best.id]--;toast("😡 Someone quit! Boost mood.");}}
+let lastFrame=Date.now(),acc=0;
+function frame(){
+  const now=Date.now();let dt=(now-lastFrame)/1000;lastFrame=now;if(dt>1)dt=1;
+  tick(dt);spawnPerson(now);updateSky();
+  // HUD numbers every frame
+  $("cash").textContent=fmt(S.cash).replace("€","");
+  $("mood").textContent=Math.round(S.mood);$("moodIc").textContent=moodIc(S.mood);
+  $("emps").textContent=employees();
+  acc+=dt; if(acc>0.5){acc=0; if(activeTab)renderList();}
+  requestAnimationFrame(frame);
+}
+
+//============ OFFLINE ============
+function applyOffline(){
+  const now=Date.now();let el=(now-(S.last||now))/1000;if(el<2)return;el=Math.min(el,8*3600);
+  const start=S.cash;let step=Math.max(1,el/200),t=0;
+  while(t<el){const d=Math.min(step,el-t);const r=rate()*d;S.cash+=r;S.val+=r;const fl=moodFloor();S.mood-=decayPerSec()*d;if(S.mood<fl)S.mood=fl;t+=d;}
+  const earned=S.cash-start;if(el>30)setTimeout(()=>toast("Welcome back! +"+fmt(earned)+" while away"),400);
+}
+
+//============ INIT ============
+function init(){
+  load();applyOffline();buildTabs();renderBuilding();refresh();
+  $("sound").onclick=()=>{soundOn=!soundOn;$("sound").textContent=soundOn?"🔊":"🔇";const m=$("aMusic");if(!soundOn){m.pause();}else if(musicStarted){m.play().catch(()=>{});}};
+  $("reset").onclick=()=>{if(confirm("Reset all progress?")){localStorage.removeItem("vintedExpansion");S=freshState();closeSheet();renderBuilding();refresh();}};
+  document.addEventListener("pointerdown",startMusic,{once:true});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});
+  setInterval(save,5000);
+  requestAnimationFrame(frame);
+  if(employees()===1&&S.val===0)setTimeout(()=>toast("👋 Tap Staff and hire your first designer!"),700);
+}
+init();
+</script>
+</body>
+</html>
