@@ -17,6 +17,7 @@
   .bg{position:absolute;inset:0;background-repeat:repeat-x;background-size:auto 100%;background-position:0 center;}
   #bgDay{background-image:url('assets/bg/day.png');}
   #bgNight{background-image:url('assets/bg/night.png');opacity:0;}
+  #bgMoon{position:absolute;inset:0;z-index:1;background:url('assets/bg/moon.png') center/cover no-repeat;opacity:0;transition:opacity 1.2s ease;}
 
   /* top HUD */
   #hud{position:absolute;top:0;left:0;right:0;z-index:10;padding:10px 12px 0;}
@@ -26,6 +27,9 @@
   .pill .ic{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex:none;}
   .ic.emp{background:var(--purple);} .ic.mood{background:var(--pink);} .ic.cash{background:var(--cash);} .ic.star{background:var(--yellow);}
   .pill small{font-size:10px;color:var(--muted);font-weight:700;margin-left:-3px;}
+  .pill .picon{width:28px;height:28px;flex:none;object-fit:contain;}
+  .ic .cicon{width:24px;height:24px;object-fit:contain;}
+  .tic .ticimg{width:40px;height:40px;object-fit:contain;}
   #lvlbox{position:relative;height:35px;min-width:134px;border-radius:22px;background:#e6eaf0;overflow:hidden;box-shadow:0 5px 14px rgba(35,45,75,.16);}
   #lvlfill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#f7c333,#e6a700);transition:width .3s;}
   #lvlbox .lvltop{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:flex-end;padding:0 14px;font-weight:800;font-size:14px;color:var(--ink);}
@@ -38,11 +42,12 @@
 
   /* stage / building */
   #stage{position:relative;flex:1;min-height:200px;z-index:2;overflow:hidden;}
-  .bldg{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:78%;max-width:330px;filter:drop-shadow(0 14px 20px rgba(0,0,0,.22));}
+  .bldg{position:absolute;left:50%;bottom:calc(108px + env(safe-area-inset-bottom));transform:translateX(-50%);width:78%;max-width:330px;filter:drop-shadow(0 14px 20px rgba(0,0,0,.22));}
   #buildingNext{opacity:0;pointer-events:none;}
-  .person{position:absolute;height:46px;z-index:3;transform-origin:bottom center;transition:left 3.6s linear,bottom 3.6s linear,transform 3.6s linear,opacity .5s;pointer-events:none;}
+  .person{position:absolute;height:60px;z-index:3;transform-origin:bottom center;transition:left 3.6s linear,bottom 3.6s linear,transform 3.6s linear,opacity .5s;pointer-events:none;}
   #thomasFx{position:absolute;left:50%;bottom:20%;width:56%;max-width:250px;z-index:8;pointer-events:none;opacity:0;transition:opacity .6s ease;filter:drop-shadow(0 12px 20px rgba(0,0,0,.35));animation:tfloat 2.6s ease-in-out infinite;}
   @keyframes tfloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-12px)}}
+  #winFx{position:absolute;left:50%;bottom:40%;width:58%;max-width:260px;z-index:9;pointer-events:none;opacity:0;transition:opacity .7s ease;filter:drop-shadow(0 14px 22px rgba(0,0,0,.4));animation:tfloat 2.8s ease-in-out infinite;}
 
   .toast{position:absolute;top:92px;left:50%;transform:translateX(-50%) translateY(-6px);background:rgba(31,41,55,.94);color:#fff;font-weight:700;font-size:13px;line-height:1.35;text-align:center;padding:9px 16px;border-radius:16px;z-index:30;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:normal;max-width:82%;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -50,16 +55,13 @@
   @keyframes fl{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-40px)}}
 
   /* tab bar */
-  #tabbar{position:relative;z-index:12;display:flex;gap:6px;padding:9px 10px calc(9px + env(safe-area-inset-bottom));background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -5px 20px rgba(35,45,75,.10);}
-  .tab{flex:1;padding:7px 2px 5px;text-align:center;cursor:pointer;border-radius:14px;transition:background .15s;}
-  .tab.active{background:#f4f1fe;}
-  .tab .tic{width:38px;height:38px;margin:0 auto 3px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;background:#fff;box-shadow:0 2px 6px rgba(35,45,75,.12);}
-  .tab .lab{font-size:11px;font-weight:800;color:#5b6472;}
+  /* transparent bar; the buttons float over the game stage, label inside each button */
+  #tabbar{position:absolute;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));z-index:12;display:flex;gap:10px;padding:0 14px;background:transparent;}
+  .tab{flex:1;padding:10px 4px 9px;text-align:center;cursor:pointer;background:#FFFFFF;border:2px solid #DCE8EB;box-shadow:0px 4px 0px rgba(106,171,183,0.08);border-radius:20px;transition:background .15s;}
+  .tab.active{background:#eef6f7;}
+  .tab .tic{width:46px;height:46px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;}
+  .tab .lab{font-size:12px;font-weight:800;color:#5b6472;}
   .tab.active .lab{color:var(--ink);}
-  .t-staff .tic{box-shadow:inset 0 0 0 2px var(--purple),0 2px 6px rgba(35,45,75,.10);}
-  .t-facilities .tic{box-shadow:inset 0 0 0 2px var(--green),0 2px 6px rgba(35,45,75,.10);}
-  .t-culture .tic{box-shadow:inset 0 0 0 2px var(--pink),0 2px 6px rgba(35,45,75,.10);}
-  .t-business .tic{box-shadow:inset 0 0 0 2px var(--teal),0 2px 6px rgba(35,45,75,.10);}
 
   /* shop sheet */
   #sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;transform:translateY(110%);transition:transform .32s cubic-bezier(.4,0,.2,1);max-height:66%;display:flex;flex-direction:column;z-index:40;box-shadow:0 -10px 40px rgba(0,0,0,.20);}
@@ -123,17 +125,18 @@
 <div id="app">
   <div id="bgDay" class="bg"></div>
   <div id="bgNight" class="bg"></div>
+  <div id="bgMoon"></div>
 
   <div id="ctrls"><button id="reset">reset</button></div>
 
   <div id="hud">
     <div class="pills">
       <div class="col">
-        <div class="pill"><span class="ic emp">👥</span><span id="emps">1</span><small>/<span id="cap">3</span></small></div>
-        <div class="pill"><span class="ic mood" id="moodIc">😀</span><span id="mood">80</span><small>%</small></div>
+        <div class="pill"><span class="ic emp"><img class="cicon" src="assets/icons/staff.png" alt=""></span><span id="emps">1</span><small>/<span id="cap">3</span></small></div>
+        <div class="pill"><img class="picon" id="moodIc" src="assets/icons/mood04.png" alt="mood"><span id="mood">80</span><small>%</small></div>
       </div>
       <div class="col" style="align-items:flex-end">
-        <div class="pill"><span class="ic cash">€</span><span id="cash">0</span></div>
+        <div class="pill"><img class="picon" src="assets/icons/valuation.png" alt="valuation"><span id="cash">0</span></div>
         <div id="lvlbox">
           <div id="lvlfill"></div>
           <div class="lvltop"><b id="lvltext">Level 1</b></div>
@@ -293,8 +296,8 @@ function buildTabs(){
   TABS.forEach(t=>{
     const d=document.createElement("div");
     d.className="tab t-"+t.id+(t.id===activeTab?" active":"");
-    // the Mood tab shows the live mood face (same emoji as the top-right pill)
-    const ic=t.id==="culture"?`<span id="moodTabIc">${moodIc(S.mood)}</span>`:t.ic;
+    // the Mood tab shows the live mood face (same icon as the top-right pill)
+    const ic=t.id==="culture"?`<img id="moodTabIc" class="ticimg" src="assets/icons/${moodIcon(S.mood)}.png">`:`<img class="ticimg" src="assets/icons/${t.id}.png">`;
     d.innerHTML=`<div class="tic">${ic}</div><div class="lab">${t.label}</div>`;
     d.onclick=()=>{ startMusic(); if(activeTab===t.id){closeSheet();}else openSheet(t.id); };
     tb.appendChild(d);
@@ -402,6 +405,12 @@ function thomasAppear(){
   requestAnimationFrame(()=>{t.style.opacity="1";});
   setTimeout(()=>{t.style.opacity="0";setTimeout(()=>t.remove(),700);},3000);
 }
+// Level 11 victory: trophy floats in front (stays) + endless money rain
+let winRainIv=null;
+function startWinRain(){if(winRainIv)return;winRainIv=setInterval(()=>{for(let k=0;k<2;k++){const c=document.createElement("img");c.src="assets/bill.png";c.className="billfall";c.style.left=Math.random()*100+"%";c.style.width=(36+Math.random()*26)+"px";const dur=2+Math.random()*2;c.style.animationDuration=dur+"s";$("app").appendChild(c);setTimeout(()=>c.remove(),dur*1000+200);}},380);}
+function stopWinRain(){clearInterval(winRainIv);winRainIv=null;}
+function winAppear(){if($("winFx"))return;const t=document.createElement("img");t.id="winFx";t.src="assets/win.png";$("stage").appendChild(t);requestAnimationFrame(()=>{t.style.opacity="1";});}
+function finalVictory(){S.won=true;play("aLevel",0.6);setTimeout(()=>play("aStage",0.5),160);transitionBuilding();celebrate();setTimeout(()=>{winAppear();startWinRain();},2000);}
 // Jonas.png confetti (same fall movement as the bills) — extra pieces, staggered so it rains ~2s longer
 function jonasConfetti(){for(let i=0;i<44;i++){const c=document.createElement("img");c.src="assets/jonas.png";c.className="billfall";c.style.left=Math.random()*100+"%";c.style.width=(42+Math.random()*30)+"px";c.style.animationDuration=(1.8+Math.random()*1.8)+"s";c.style.animationDelay=(Math.random()*2)+"s";$("app").appendChild(c);setTimeout(()=>c.remove(),5800);}}
 // play the Jonas_VP clip three times in a row (music ducked until the last one ends)
@@ -417,6 +426,7 @@ function levelUp(){
   if(nl===8) S.ipo=true;                                    // going public: permanent +10% rate (via globalMult)
   notifiedFor=-1;                                           // re-arm the "ready" notice for the next level
   closeSheet();                                             // hide any open sheet before the congrats modal
+  if(nl>=11){ finalVictory(); refresh(); return; }          // final stage: no modal — show stage, then trophy + money rain
   levelModal(nl);refresh();
 }
 
@@ -440,20 +450,21 @@ function spawnPerson(now){
   p.src="assets/people/"+set[Math.floor(Math.random()*set.length)]+".png";
   if(leaving){
     // reversed: start at the door (small/far), walk OUT to bottom-left corner (big/near)
-    p.style.height="60px"; // taller so body matches happy sprites; sad bubble floats above
-    p.style.left=(37+Math.random()*4)+"%";p.style.bottom=(15+Math.random()*4)+"%";p.style.transform="scale(0.8)";p.style.opacity="0.95";
+    p.style.height="78px"; // taller so body matches happy sprites; sad bubble floats above
+    p.style.left=(33+Math.random()*3)+"%";p.style.bottom="210px";p.style.transform="scale(0.55)";p.style.opacity="0.95";
     st.appendChild(p);
-    requestAnimationFrame(()=>{p.style.left="-12%";p.style.bottom="2%";p.style.transform="scale(1)";});
+    requestAnimationFrame(()=>{p.style.left="-12%";p.style.bottom="124px";p.style.transform="scale(1)";});
   }else{
     // entering: start bottom-left corner (big/near), walk IN toward the door (small/far)
-    p.style.left="-10%";p.style.bottom="2%";p.style.transform="scale(1)";p.style.opacity="0.95";
+    p.style.left="-10%";p.style.bottom="124px";p.style.transform="scale(1)";p.style.opacity="0.95";
     st.appendChild(p);
-    requestAnimationFrame(()=>{p.style.left=(37+Math.random()*4)+"%";p.style.bottom=(15+Math.random()*4)+"%";p.style.transform="scale(0.8)";});
+    requestAnimationFrame(()=>{p.style.left=(33+Math.random()*3)+"%";p.style.bottom="210px";p.style.transform="scale(0.55)";});
   }
   setTimeout(()=>{p.style.opacity="0";setTimeout(()=>p.remove(),500);},3200);
 }
 const SKY_ASPECT=0.7460;   // day.png/night.png width/height
 function updateSky(){
+  const moon=$("bgMoon");if(moon)moon.style.opacity=(S.level>=11)?"1":"0"; // final stage: moon backdrop
   // day<->night crossfade over a 60s cycle
   const t=(Date.now()/60000)%1;
   const night=Math.max(0,Math.min(1,(Math.cos(t*2*Math.PI)* -0.5+0.5))); // 0 day ->1 night smoothly
@@ -469,7 +480,8 @@ function updateSky(){
 }
 
 //============ HUD ============
-const moodIc=m=>m>=85?"😀":m>=70?"🙂":m>=45?"😟":"😡";
+const moodIcon=m=>m>=70?"mood04":m>=55?"mood03":m>=45?"mood02":"mood01"; // happy / neutral / sad / angry
+function setMoodIcons(){const p="assets/icons/"+moodIcon(S.mood)+".png";const a=$("moodIc");if(a)a.src=p;const b=$("moodTabIc");if(b)b.src=p;}
 function updateLevelBox(){
   $("lvltext").textContent="Level "+S.level;
   const up=$("upgradeBtn");
@@ -482,7 +494,7 @@ function updateLevelBox(){
 function refresh(){
   $("cash").textContent=fmt(S.val).replace("€","");
   $("emps").textContent=employees();$("cap").textContent=capacity();
-  $("mood").textContent=Math.round(S.mood);$("moodIc").textContent=moodIc(S.mood);
+  $("mood").textContent=Math.round(S.mood);setMoodIcons();
   updateLevelBox();
 }
 
@@ -525,7 +537,7 @@ function winModal(){
 function closeModal(){$("modal").classList.remove("show");finishLevelUp();}
 $("mX")&&($("mX").onclick=closeModal);
 function newShares(){return Math.floor(10*Math.sqrt(S.val/1e6));}
-function newVenture(){const keep=S.shares+newShares();S=freshState();S.shares=keep;closeModal();renderBuilding();refresh();save();toast("New Venture! +shares (permanent boost)");}
+function newVenture(){const keep=S.shares+newShares();S=freshState();S.shares=keep;stopWinRain();const w=$("winFx");if(w)w.remove();closeModal();renderBuilding();refresh();save();toast("New Venture! +shares (permanent boost)");}
 
 //============ LOOP ============
 let notifiedFor=-1;
@@ -553,7 +565,7 @@ function demoAdvance(){
   if(LEVEL_COST[S.level]) S.val=Math.max(S.val,LEVEL_COST[S.level]);
   play("aLevel",0.6);setTimeout(()=>play("aStage",0.5),140);
   transitionBuilding();
-  if(S.level>=11) setTimeout(()=>{ if(S.demo) demoDoneModal(); },1800);
+  if(S.level>=11) setTimeout(()=>{ if(S.demo){winAppear();startWinRain();setTimeout(()=>{if(S.demo)demoDoneModal();},3500);} },2000);
 }
 function demoDoneModal(){
   $("mTag").textContent="Demo complete";$("mStar").textContent="🚀";
@@ -569,8 +581,7 @@ function frame(){
   tick(dt);spawnPerson(now);updateSky();
   // HUD numbers every frame
   $("cash").textContent=fmt(S.val).replace("€","");
-  $("mood").textContent=Math.round(S.mood);$("moodIc").textContent=moodIc(S.mood);
-  const mt=$("moodTabIc");if(mt)mt.textContent=moodIc(S.mood);
+  $("mood").textContent=Math.round(S.mood);setMoodIcons();
   $("emps").textContent=employees();
   updateLevelBox();
   acc+=dt; if(acc>0.2){acc=0; if(activeTab)syncSheet();}
@@ -615,6 +626,7 @@ function init(){
   document.addEventListener("visibilitychange",()=>{if(document.hidden)save();});
   setInterval(save,5000);
   startIntroRain();
+  if(S.level>=11) setTimeout(()=>{winAppear();startWinRain();},800); // resume victory state on reload
   requestAnimationFrame(frame);
   if(employees()===1&&S.val===0)setTimeout(()=>toast("👋 Tap Staff and hire your first designer!"),700);
 }
