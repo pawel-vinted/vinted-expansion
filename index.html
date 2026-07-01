@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Vinted Expansion</title>
+<title>Vinted Progression</title>
+<meta name="description" content="Build a Vinted empire — grow the company from a scrappy MVP to a space HQ and reach a trillion-euro valuation.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vinted Progression">
+<meta property="og:description" content="Build a Vinted empire and help the company reach a trillion-euro valuation.">
+<meta property="og:image" content="assets/intro/logo.png">
 <style>
   :root{
     --purple:#8b5cf6; --purple-d:#6d28d9; --green:#37b24d; --cash:#2fb344;
@@ -96,11 +101,11 @@
   .card{background:#fff;border-radius:24px;width:100%;max-width:340px;padding:18px 20px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;}
   .card .mh{font-size:15px;font-weight:800;color:#3a4150;margin-bottom:6px;}
   .card .x{position:absolute;right:16px;top:14px;font-size:22px;color:#9aa3b2;background:none;border:none;cursor:pointer;}
-  .bigstar{width:84px;height:84px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:44px;color:#fff;margin:14px auto 16px;box-shadow:0 8px 20px rgba(245,181,10,.4);}
+  .mstarimg{width:110px;height:110px;object-fit:contain;display:block;margin:10px auto 14px;}
   .card h1{font-size:22px;margin:0 0 14px;color:var(--ink);line-height:1.25;}
   .rewardpill{display:inline-flex;align-items:center;gap:7px;background:#f3f6fa;border-radius:20px;padding:6px 14px 6px 6px;font-weight:800;font-size:15px;}
   .rewardpill .ic{width:26px;height:26px;border-radius:50%;background:var(--cash);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;}
-  .card button.go{margin-top:22px;background:var(--purple);color:#fff;border:none;font-weight:800;font-size:15px;padding:13px 26px;border-radius:26px;cursor:pointer;width:100%;}
+  .card button.go{margin-top:22px;background:#007782;color:#fff;border:none;font-weight:800;font-size:15px;padding:13px 26px;border-radius:26px;cursor:pointer;width:100%;}
   .confetti{position:absolute;width:9px;height:13px;top:-20px;z-index:55;animation:fall linear forwards;}
   @keyframes fall{to{transform:translateY(110vh) rotate(560deg);opacity:.7}}
   .billfall{position:absolute;top:-46px;z-index:55;pointer-events:none;animation:fall linear forwards;}
@@ -163,7 +168,7 @@
   <div id="modal"><div class="card">
     <div class="mh" id="mTag">Level up</div>
     <button class="x" id="mX">✕</button>
-    <div class="bigstar" id="mStar">★</div>
+    <img class="mstarimg" id="mStar" src="assets/icons/star.png" alt="">
     <h1 id="mTitle"></h1>
     <div class="rewardpill" id="mReward"><span class="ic">€</span><span id="mRewardV"></span></div>
     <button class="go" id="mGo">Continue playing</button>
@@ -502,7 +507,7 @@ function refresh(){
 function celebrate(){for(let i=0;i<26;i++){const c=document.createElement("img");c.src="assets/bill.png";c.className="billfall";c.style.left=Math.random()*100+"%";c.style.width=(36+Math.random()*25)+"px";c.style.animationDuration=(1.6+Math.random()*1.6)+"s";$("app").appendChild(c);setTimeout(()=>c.remove(),3400);}}
 let pendingUpgrade=false;
 function levelModal(n){
-  $("mTag").textContent="Level up";$("mStar").textContent="★";
+  $("mTag").textContent="Level up";$("mStar").src="assets/icons/star.png";
   $("mTitle").innerHTML="Level "+n+" — "+STAGE_NAMES[n-1]+"!<br><span style='font-size:14px;font-weight:700;color:#2b8a3e'>×2.8 earnings unlocked</span>";
   $("mReward").style.display="none";   // single-currency: leveling costs valuation, no cash reward
   $("mGo").textContent="Continue playing";$("mGo").onclick=closeModal;
@@ -528,7 +533,7 @@ function transitionBuilding(){
   setTimeout(()=>{b.src=nx.src;b.style.transition="none";b.style.opacity="1";nx.style.opacity="0";},740);
 }
 function winModal(){
-  $("mTag").textContent="Victory";$("mStar").textContent="🚀";
+  $("mTag").textContent="Victory";$("mStar").src="assets/win.png";
   $("mTitle").innerHTML="€10 Trillion!<br>Vinted conquered space.";
   $("mReward").style.display="none";
   $("mGo").textContent="Start New Venture (+"+newShares()+" shares)";$("mGo").onclick=newVenture;
@@ -568,7 +573,7 @@ function demoAdvance(){
   if(S.level>=11) setTimeout(()=>{ if(S.demo){winAppear();startWinRain();setTimeout(()=>{if(S.demo)demoDoneModal();},3500);} },2000);
 }
 function demoDoneModal(){
-  $("mTag").textContent="Demo complete";$("mStar").textContent="🚀";
+  $("mTag").textContent="Demo complete";$("mStar").src="assets/win.png";
   $("mTitle").innerHTML="You've seen all 11 stages!";
   $("mReward").style.display="none";
   $("mGo").textContent="Start playing for real";$("mGo").onclick=()=>location.reload();
